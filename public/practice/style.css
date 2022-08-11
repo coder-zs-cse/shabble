@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@600&family=Nunito+Sans:wght@800&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+}
+.night-mode{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    padding: 5px;
+    border-radius: 1000px;
+    background-color: black;
+    cursor: pointer;
+    border: 2px solid white;
+}
+#darkmode{
+    /* display: none; */
+}
+#lightmode{
+    display: none;
+}
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: blue;
+    height: 100vh;
+    width: 100vw;
+}
+.guesstray{
+    background-color: #edeff1;
+    width: 30vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.guesstray button{
+    background-color:  rgb(0, 103, 159);
+    background-color:  rgb(4, 165, 251);
+    width: 60%;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Nunito Sans', sans-serif;
+    padding: 5px ;
+    margin: 5px;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+}
+.board{
+    width: 40vw;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+}
+nav{
+    background-color: white;
+    height: 10vh;
+    color: black;
+    width: 100%;
+}
+nav ul{
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    /* justify-content: space-between; */
+}
+nav ul li{
+    list-style-type: none;
+}
+.board h2{
+    color: black;
+    font-family: 'Baloo Bhai 2', cursive;
+    text-transform: uppercase;
+    font-size: 2.5rem;
+}
+.header_buttons{
+    background-color: #edeff1;
+    margin: 0px 10px;
+    padding: 5px 5px;
+    border: none;
+    border-radius: 5px;
+}
+.name{
+    font-size: 2.2rem;
+}
+.container span{
+    margin: auto;
+    font-family: 'Nunito Sans', sans-serif;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    font-weight: 100;
+    color: #75787a;
+}
+.matrix{
+    /* background-color: cornsilk; */
+    width: 30vw;
+    height: 30vw;
+    display: grid;
+    margin: auto 0px;
+    grid-template-columns: repeat(5,6vw);
+    grid-template-rows: repeat(5,6vw);
+}
+.box{
+    background-color: #6fb05c;
+    border-bottom: 6px solid rgb(9, 133, 5);
+    border-left: 2px solid rgb(9, 133, 5);
+    margin: 2px;
+    border-radius: 15px;
+}
+.box:hover{
+
+}
+.cluecontainer{
+    width: 30vw;
+    height: 100%;
+    background-color: #edeff1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgb(255, 255, 255);
+    /* filter: blur(3px); */
+}
+.text{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: auto;
+    color: #666;
+}
+.text span{
+    color: black;
+    font-size: 2rem;
+    font-weight:bolder;
+    margin: 0px 20px;
+    font-family: 'Nunito Sans', sans-serif;
+}
+.cluecontainer h3,.text h3{
+    font-size: 2rem;
+    text-transform: uppercase;
+    font-family: 'Nunito Sans', sans-serif;
+    
+}
+.cluetray{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+.cluebox{
+    background-color: rgb(4, 165, 251);
+    height: 50px;
+    width: 300px;
+    margin: 4px ;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
