@@ -94,7 +94,7 @@ export const instructions: readonly (string | JSX.Element)[][] = [
     ],
     [
         <>
-            Clicking on any tile will reveal the number of blocks of hidden shape surrounding it.
+            Clicking on any tile will reveal the number of blocks of hidden shape surrounding that tile including it. In other words out of 9 tiles around it, how many are part of hidden shape.
         </>,
         <>
             <div className='flex flex-wrap justify-center gap-4'>
