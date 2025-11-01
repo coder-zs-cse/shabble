@@ -21,7 +21,7 @@ export default function RootLayout({
         <ToastContainer />
         {children}
       </body>
-      <script defer src="https://usa.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="188903092"></script>
+      {/* <script defer src="https://usa.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="188903092"></script> */}
       {/* <script defer src="https://www.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="111651938"></script> */}
       {/* <script defer src/="https://lark-actual-finally.ngrok-free.app/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="113711041"></script> */}
       {/* <script defer src="https://usa.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="117195617"></script> */}
