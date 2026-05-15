@@ -64,9 +64,10 @@ function Daily() {
                                 <GameResult
                                     gameStatus={settings.gameStatus}
                                     stars={settings.stars}
-                                />
+                                    solution={(settings as unknown as { solution: string[][] }).solution} 
+                                />  
                             )}
-                        </div>
+                        </div>  
                         <div className='flex-1 w-full h-full' />
                     </div>
                 )}

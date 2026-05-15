@@ -13,7 +13,7 @@ interface GameStatusProps {
 }
 
 export function GameStatus({ 
-    date, 
+    date,   
     board, 
     guess, 
     gameStatus, 
