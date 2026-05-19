@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { ToastContainer } from 'react-toastify';
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Shabble",
   description: "Shabble is a shape guessing game",
   icons: {
-    icon: '/favicon.ico',    // This will look for the file in the public directory
+    icon: '/favicon.ico',
   },
 };
 
@@ -18,14 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ToastContainer />
-        {children}
+        <SessionProvider>
+          <ToastContainer />
+          {children}
+        </SessionProvider>
       </body>
-      {/* <script defer src="https://usa.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="188903092"></script> */}
-      {/* <script defer src="https://www.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="111651938"></script> */}
-      {/* <script defer src/="https://lark-actual-finally.ngrok-free.app/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="113711041"></script> */}
-      {/* <script defer src="https://usa.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="117195617"></script> */}
-      {/* <script defer src="https://www.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="112709652"></script> */}
     </html>
   );
 }

@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Loader } from '@/components'
 import { useGameSettings } from '@/contexts'
 import {
@@ -23,10 +23,11 @@ function Daily() {
         setShowStatistics
     } = useGameLogic();
 
-    console.log("settings in daily", settings)
-    if(error){
-        toast.error("Database is inactive, please ask developer to activate it");
-    }
+    useEffect(() => {
+        if (error) {
+            toast.error("Database is inactive, please ask developer to activate it");
+        }
+    }, [error]);
     return (
         <div className='relative flex flex-col items-center w-full h-full overflow-hidden'>
             <GameHeader

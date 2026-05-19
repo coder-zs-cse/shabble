@@ -23,7 +23,10 @@ import {
     incrementPlayedCount,
     updateStreak,
     updateStars,
-    getStatistics
+    getStatistics,
+    getOrCreateUserByGoogleId,
+    updateUserCountry,
+    getLeaderboard
 } from "./user/user";
 
 export {
@@ -31,6 +34,11 @@ export {
     incrementPlayedCount,
     updateStreak,
     updateStars,
-    getStatistics
+    getStatistics,
+    getOrCreateUserByGoogleId,
+    updateUserCountry,
+    getLeaderboard
 };
+
+export type { LeaderboardEntry } from "./user/user";
 

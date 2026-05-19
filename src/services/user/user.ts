@@ -3,6 +3,15 @@ import { prisma } from "@/lib";
 import { StatisticsProps } from "@/types";
 import crypto from 'crypto';
 
+export interface LeaderboardEntry {
+    rank: number;
+    userId: string;
+    name: string | null;
+    countryCode: string | null;
+    stars: number;
+    completedAt: Date;
+}
+
 export const createUser = async (): Promise<string> => {
     try {
         const userId = crypto.randomBytes(4).toString('hex').toUpperCase();
@@ -68,6 +77,89 @@ export const updateStreak = async (userId: string, won: boolean): Promise<void> 
         });
     } catch (error) {
         console.error('Error updating streak:', error);
+        throw error;
+    }
+}
+
+export const getOrCreateUserByGoogleId = async (
+    googleId: string,
+    name: string | null,
+    email: string | null
+): Promise<string> => {
+    try {
+        const existing = await prisma.user.findUnique({
+            where: { googleId },
+            select: { id: true }
+        });
+
+        if (existing) {
+            await prisma.user.update({
+                where: { id: existing.id },
+                data: { name, email }
+            });
+            return existing.id;
+        }
+
+        const userId = crypto.randomBytes(4).toString('hex').toUpperCase();
+        await prisma.user.create({
+            data: { id: userId, googleId, name, email, createdAt: new Date() }
+        });
+        return userId;
+    } catch (error) {
+        console.error('Error in getOrCreateUserByGoogleId:', error);
+        throw error;
+    }
+}
+
+export const updateUserCountry = async (userId: string, countryCode: string): Promise<void> => {
+    try {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { countryCode }
+        });
+    } catch (error) {
+        console.error('Error updating user country:', error);
+        throw error;
+    }
+}
+
+export const getLeaderboard = async (): Promise<LeaderboardEntry[]> => {
+    try {
+        const now = new Date();
+        const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        const startOfTomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+
+        const entries = await prisma.userProgress.findMany({
+            where: {
+                status: 'won',
+                puzzle: { date: { gte: startOfToday, lt: startOfTomorrow } },
+                user: { public: true }
+            },
+            select: {
+                stars: true,
+                updatedAt: true,
+                user: {
+                    select: { id: true, name: true, countryCode: true }
+                }
+            },
+            orderBy: [
+                { stars: 'desc' },
+                { updatedAt: 'asc' }
+            ],
+            take: 100
+        });
+
+        type Entry = (typeof entries)[number];
+        return entries.map((e: Entry, i: number) => ({
+            rank: i + 1,
+            userId: e.user.id,
+            name: e.user.name,
+            countryCode: e.user.countryCode,
+            stars: e.stars ?? 0,
+            completedAt: e.updatedAt
+        }));
+    } catch (error) {
+        console.error('Error getting leaderboard:', error);
         throw error;
     }
 }
