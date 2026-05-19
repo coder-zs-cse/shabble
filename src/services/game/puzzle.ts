@@ -1,34 +1,17 @@
 import { DailyPuzzle } from "@prisma/client";
 import { prisma } from "@/lib";
+import NodeCache from "node-cache";
 
-const cachedBoardsByKey = new Map<string, DailyPuzzle>();
-const cachedBoardsById = new Map<number, DailyPuzzle>();
-const cacheExpiryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const boardCache = new NodeCache();
 
 const normalizeDate = (date: string): string => new Date(date).toISOString().split('T')[0];
 const getCacheKey = (date: string, boardSize: number): string => `${date}:${boardSize}`;
 
-const getExpiryMillis = (date: string): number => {
+const getExpirySeconds = (date: string): number => {
     const normalizedDate = normalizeDate(date);
-    const puzzleDate = new Date(`${normalizedDate}T00:00:00.000Z`);
-    const nextDay = new Date(puzzleDate);
+    const nextDay = new Date(`${normalizedDate}T00:00:00.000Z`);
     nextDay.setUTCDate(nextDay.getUTCDate() + 1);
-    return Math.max(0, nextDay.getTime() - Date.now());
-};
-
-const scheduleCacheEviction = (cacheKey: string, puzzleId: number, ttl: number): void => {
-    const existingTimer = cacheExpiryTimers.get(cacheKey);
-    if (existingTimer) {
-        clearTimeout(existingTimer);
-    }
-
-    const timer = setTimeout(() => {
-        cacheExpiryTimers.delete(cacheKey);
-        cachedBoardsByKey.delete(cacheKey);
-        cachedBoardsById.delete(puzzleId);
-    }, ttl);
-
-    cacheExpiryTimers.set(cacheKey, timer);
+    return Math.max(0, Math.floor((nextDay.getTime() - Date.now()) / 1000));
 };
 
 export function fetchBoard(boardSize: number): { x: number, y: number }[] {
@@ -69,83 +52,36 @@ export function fetchBoard(boardSize: number): { x: number, y: number }[] {
 }
 
 interface getCurrentBoardParams {
-    puzzleId?: number;
     boardSize?: number;
     date?: string;
 }
 
-const cacheDailyPuzzle = (dailyPuzzle: DailyPuzzle): void => {
-    const normalizedDate = normalizeDate(dailyPuzzle.date.toISOString().split('T')[0]);
-    const cacheKey = getCacheKey(normalizedDate, dailyPuzzle.boardSize);
+export async function getCurrentBoard({ boardSize, date }: getCurrentBoardParams): Promise<DailyPuzzle> {
+    if (!date || !boardSize) {
+        throw new Error("Invalid date or boardSize");
+    }
 
-    cachedBoardsByKey.set(cacheKey, dailyPuzzle);
-    cachedBoardsById.set(dailyPuzzle.id, dailyPuzzle);
-    scheduleCacheEviction(cacheKey, dailyPuzzle.id, getExpiryMillis(normalizedDate));
-};
-
-const getCachedCurrentBoard = async (date: string, boardSize: number): Promise<DailyPuzzle> => {
     const normalizedDate = normalizeDate(date);
     const cacheKey = getCacheKey(normalizedDate, boardSize);
-    const cached = cachedBoardsByKey.get(cacheKey);
+    const cached = boardCache.get<DailyPuzzle>(cacheKey);
     if (cached) {
         return cached;
     }
 
     const puzzleDate = new Date(`${normalizedDate}T00:00:00.000Z`);
     let dailyPuzzle = await prisma.dailyPuzzle.findUnique({
-        where: {
-            date_boardSize: {
-                date: puzzleDate,
-                boardSize
-            }
-        }
+        where: { date_boardSize: { date: puzzleDate, boardSize } }
     });
 
     if (!dailyPuzzle) {
         const board = fetchBoard(boardSize);
         dailyPuzzle = await prisma.dailyPuzzle.create({
-            data: {
-                date: puzzleDate,
-                board,
-                boardSize
-            }
+            data: { date: puzzleDate, board, boardSize }
         });
     }
 
-    cacheDailyPuzzle(dailyPuzzle);
+    boardCache.set(cacheKey, dailyPuzzle, getExpirySeconds(normalizedDate));
     return dailyPuzzle;
-};
-
-const getCachedCurrentBoardById = async (puzzleId: number): Promise<DailyPuzzle> => {
-    const cached = cachedBoardsById.get(puzzleId);
-    if (cached) {
-        return cached;
-    }
-
-    const dailyPuzzle = await prisma.dailyPuzzle.findUnique({
-        where: {
-            id: puzzleId
-        }
-    });
-
-    if (!dailyPuzzle) {
-        throw new Error("Invalid puzzleId");
-    }
-
-    cacheDailyPuzzle(dailyPuzzle);
-    return dailyPuzzle;
-};
-
-export async function getCurrentBoard({ puzzleId, boardSize, date }: getCurrentBoardParams): Promise<DailyPuzzle> {
-    if (puzzleId) {
-        return getCachedCurrentBoardById(puzzleId);
-    }
-
-    if (!date || !boardSize) {
-        throw new Error("Invalid date or boardSize");
-    }
-
-    return getCachedCurrentBoard(date, boardSize);
 }
 
 export function getAdjacentCount(board: { x: number, y: number }[], boardSize: number, x: number, y: number): number {

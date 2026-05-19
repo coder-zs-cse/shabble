@@ -12,9 +12,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             return NextResponse.json({ errors }, { status: 400 });
         }
 
-        const { puzzleId, guess } = data;
+        const { date, boardSize, guess } = data;
 
-        const currentBoard = await getCurrentBoard({ puzzleId });
+        const currentBoard = await getCurrentBoard({ date, boardSize });
         const isCorrect = checkGuess(currentBoard.board as { x: number, y: number }[], guess);
         const updatedUserProgress = await updateUserProgress({ userId: data.userId!, boardSize: currentBoard.boardSize, puzzleId: currentBoard.id, status: isCorrect ? 'CORRECT' : 'WRONG' });
         const statistics = await getStatistics(userId!);

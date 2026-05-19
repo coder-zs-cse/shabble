@@ -86,7 +86,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
         try {
             setLoadingCoordinates({ x, y });
             updateSettings({ hints: settings.hints + 1 });
-            const data = await getHint(settings.puzzleId, x, y);
+            const data = await getHint(settings.date, settings.boardSize, x, y);
             const newBoard = [...settings.board];
             newBoard[x][y] = data.adjacentCount.toString();
             updateSettings({ board: newBoard });
@@ -104,7 +104,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
         try {
             updateSettings({ gameStatus: "guess-loading" });
             const [response,] = await Promise.all([
-                checkGuess(settings.puzzleId, settings.guess, settings.hints),
+                checkGuess(settings.date, settings.boardSize, settings.guess, settings.hints),
                 new Promise(resolve => setTimeout(resolve, 2000))
             ]);
             

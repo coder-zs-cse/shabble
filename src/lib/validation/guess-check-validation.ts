@@ -5,8 +5,11 @@ const guessCheckSchema = z.object({
     userId: z.string({
         required_error: 'User ID is required',
     }),
-    puzzleId: z.coerce.number({
-        required_error: 'Puzzle ID is required',
+    date: z.string({
+        required_error: 'Date is required',
+    }),
+    boardSize: z.coerce.number({
+        required_error: 'Board size is required',
     }),
     guess: z.array(z.array(z.string()))
 })

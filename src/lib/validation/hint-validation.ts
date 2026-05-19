@@ -4,8 +4,11 @@ const hintParamsSchema = z.object({
   userId: z.string({
     required_error: 'User ID is required',
   }),
-  puzzleId: z.coerce.number({
-    required_error: 'Puzzle ID is required',
+  date: z.string({
+    required_error: 'Date is required',
+  }),
+  boardSize: z.coerce.number({
+    required_error: 'Board size is required',
   }),
   x: z.coerce
     .number()
@@ -22,7 +25,8 @@ export function validateHintParams(searchParams: URLSearchParams, userId: string
 } {
   const result = hintParamsSchema.safeParse({
     userId,
-    puzzleId: searchParams.get('puzzleId'),
+    date: searchParams.get('date'),
+    boardSize: searchParams.get('boardSize'),
     x: searchParams.get('x'),
     y: searchParams.get('y')
   });

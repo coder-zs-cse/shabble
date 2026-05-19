@@ -17,9 +17,9 @@ export const getGameStatus = async (date: string, boardSize: number): Promise<Ga
     }
 }
 
-export const getHint = async (puzzleId: number, x: number, y: number): Promise<getHintResponse> => {
+export const getHint = async (date: string, boardSize: number, x: number, y: number): Promise<getHintResponse> => {
     try {
-        const response = await axiosSecure.get(`${API_HINT}?puzzleId=${puzzleId}&x=${x}&y=${y}`);
+        const response = await axiosSecure.get(`${API_HINT}?date=${date}&boardSize=${boardSize}&x=${x}&y=${y}`);
         return response.data;
     } catch (error) {
         if (error instanceof AxiosError && error.code === "ERR_BAD_RESPONSE") {
@@ -30,9 +30,9 @@ export const getHint = async (puzzleId: number, x: number, y: number): Promise<g
     }
 }
 
-export const checkGuess = async (puzzleId: number, guess: string[][], attempts: number): Promise<checkGuessResponse> => {
+export const checkGuess = async (date: string, boardSize: number, guess: string[][], attempts: number): Promise<checkGuessResponse> => {
     try {
-        const response = await axiosSecure.post(`${API_CHECK_GUESS}`, { puzzleId, guess, attempts });
+        const response = await axiosSecure.post(`${API_CHECK_GUESS}`, { date, boardSize, guess, attempts });
         return response.data;
     } catch (error) {
         if (error instanceof AxiosError && error.code === "ERR_BAD_RESPONSE") {
