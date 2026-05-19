@@ -1,15 +1,13 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { GameSettings, GameStatusResponse } from '@/types';
-import { checkGuess, getGameStatus, getHint } from '@/api/daily-api';
-import { DEFAULT_BOARD_SIZE, MAX_HINTS, MAX_STARS } from '@/constants';
-import { coordinatesToBoard } from '@/lib';
+import { GameSettings } from '@/types';
+import { DEFAULT_BOARD_SIZE, MAX_STARS, MAX_HINTS } from '@/constants';
 
 interface GameSettingsContextType {
-    settings: GameSettings;
+    settings: GameSettings & { solutionGrid: boolean[][] }; // Extends types with the solution grid matrix
     isLoading: boolean;
     error: Error | null;
-    updateSettings: (updates: Partial<GameSettings>) => void;
+    updateSettings: (updates: Partial<GameSettings & { solutionGrid: boolean[][] }>) => void;
     takeHint: (x: number, y: number) => Promise<boolean>;
     makeGuess: () => Promise<{ success: boolean; won: boolean; }>;
     updateGuess: (x: number, y: number, value: string) => void;
@@ -19,144 +17,232 @@ interface GameSettingsContextType {
 const GameSettingsContext = createContext<GameSettingsContextType | undefined>(undefined);
 
 export function GameSettingsProvider({ children }: { children: React.ReactNode }) {
-    const [settings, setSettings] = useState<GameSettings>({
-        puzzleId: 0,
+    // Generates a target pattern that dynamically matches the grid size (e.g., top row target)
+    const generateDynamicSolution = (size: number): boolean[][] => {
+        return Array.from({ length: size }, (_, r) => 
+            Array.from({ length: size }, (_, c) => r === 0)
+        );
+    };
+
+    const [settings, setSettings] = useState<GameSettings & { solutionGrid: boolean[][] }>({
+        puzzleId: 999,
         date: new Date().toISOString().split('T')[0],
         boardSize: DEFAULT_BOARD_SIZE,
         board: Array.from({ length: DEFAULT_BOARD_SIZE }, () => Array(DEFAULT_BOARD_SIZE).fill('')),
+        solutionGrid: generateDynamicSolution(DEFAULT_BOARD_SIZE),
         guess: Array.from({ length: DEFAULT_BOARD_SIZE }, () => Array(DEFAULT_BOARD_SIZE).fill('')),
         guessTileCount: 0,
-        hints: 0,
+        hints: 0, 
         gameStatus: "playing",
         stars: 0,
         statistics: {
-            played: 0,
-            totalStars: 0,
-            currentStreak: 0,
-            bestStreak: 0,
-            starDistribution: Array(MAX_STARS + 1).fill(0)
+            played: 5,
+            totalStars: 12,
+            currentStreak: 3,
+            bestStreak: 5,
+            starDistribution: Array(MAX_STARS + 1).fill(1)
         }
     });
+    
     const [loadingCoordinates, setLoadingCoordinates] = useState<{ x: number; y: number } | undefined>(undefined);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+    
+    const isLoading = false;
+    const error = null;
 
-    console.log("settings", settings);
+    //  DYNAMIC SYNCHRONIZATION: Whenever the board size changes, resize the solutions grid alongside it
     useEffect(() => {
-        async function fetchGameSettings() {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data: GameStatusResponse = await getGameStatus(settings.date, settings.boardSize);
-                setSettings(prev => ({
-                    ...prev,
-                    puzzleId: data.puzzleId,
-                    hints: data.hintCount,
-                    board: coordinatesToBoard(data.hintCoordinates, settings.boardSize),
-                    guess: Array.from({ length: settings.boardSize }, () => Array(settings.boardSize).fill('')),
-                    guessTileCount: 0,
-                    gameStatus: data.gameStatus,
-                    statistics: data.statistics
-                }));
-                if (data.gameStatus === "won") {
-                    setSettings(prev => ({
-                        ...prev,
-                        guess: coordinatesToBoard(data.solutionCoordinates || [], settings.boardSize),
-                        stars: data.stars || 0
-                    }));
-                }
-                
-            } catch (err) {
-                setError(err instanceof Error ? err : new Error('Failed to fetch game settings'));
-            } finally {
-                setIsLoading(false);
-            }
-        }
+        const freshBoard = Array.from({ length: settings.boardSize }, () => Array(settings.boardSize).fill(''));
+        
+        setSettings(prev => ({
+            ...prev,
+            board: freshBoard,
+            solutionGrid: generateDynamicSolution(settings.boardSize),
+            guess: Array.from({ length: settings.boardSize }, () => Array(settings.boardSize).fill('')),
+            hints: 0, 
+            gameStatus: "playing",
+            stars: 0
+        }));
+    }, [settings.boardSize]); 
 
-        fetchGameSettings();
-    }, [settings.date, settings.boardSize]);
-
-    const updateSettings = (updates: Partial<GameSettings>) => {
+    const updateSettings = (updates: Partial<GameSettings & { solutionGrid: boolean[][] }>) => {
         setSettings(prev => ({ ...prev, ...updates }));
     };
 
     const takeHint = async (x: number, y: number): Promise<boolean> => {
-        if (settings.board[x][y] !== '' || settings.hints >= MAX_HINTS[settings.boardSize]) return false;
-        if(settings.gameStatus === "tile-loading") return false;
+        if (settings.gameStatus !== "playing") return false;
+        if (settings.board[x][y] !== '') return false;
+        
+        const maxHintsAllowed = MAX_HINTS[settings.boardSize] || 5;
+        if (settings.hints >= maxHintsAllowed) return false; 
+        
         try {
             setLoadingCoordinates({ x, y });
-            updateSettings({ hints: settings.hints + 1 });
-            const data = await getHint(settings.puzzleId, x, y);
-            const newBoard = [...settings.board];
-            newBoard[x][y] = data.adjacentCount.toString();
-            updateSettings({ board: newBoard });
-            return true;
-        } catch (error) {
-            console.error('Error fetching hint:', error);
-            // updateSettings({ hints: settings.hints - 1 });
-            return false;
-        } finally {
+            setSettings(prev => ({ ...prev, gameStatus: "tile-loading" }));
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Read absolute truth from our live dynamic solutions grid matrix
+            const isTarget = settings.solutionGrid[x]?.[y] || false;
+           
+            let mockDisplayValue = "";
+
+            if (isTarget) {
+                mockDisplayValue = "X";
+            } else {
+                let neighboringTargetsCount = 0;
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        const checkX = x + i;
+                        const checkY = y + j;
+                        
+                        const isNeighborATarget = settings.solutionGrid[checkX]?.[checkY] || false;
+
+                        if (isNeighborATarget) {
+                            neighboringTargetsCount++;
+                        }
+                    }
+                }
+                mockDisplayValue = neighboringTargetsCount.toString();
+            }
+            
+            const newBoard = settings.board.map(row => [...row]);
+            newBoard[x][y] = mockDisplayValue;
+            
             setLoadingCoordinates(undefined);
+
+            setSettings(prev => ({
+                ...prev,
+                board: newBoard,
+                hints: prev.hints + 1, 
+                gameStatus: "playing"
+            }));
+            
+            return true;
+        } catch (err) {
+            setSettings(prev => ({ ...prev, gameStatus: "playing" }));
+            setLoadingCoordinates(undefined);
+            return false;
         }
     };
 
     const makeGuess = async () => {
-        try {
+        if (settings.gameStatus === "playing") {
+            updateSettings({ gameStatus: "guessing" });
+            return { success: true, won: false };
+        }
+
+        if (settings.gameStatus === "guessing") {
             updateSettings({ gameStatus: "guess-loading" });
-            const [response,] = await Promise.all([
-                checkGuess(settings.puzzleId, settings.guess, settings.hints),
-                new Promise(resolve => setTimeout(resolve, 2000))
-            ]);
-            
-            switch(response.gameStatus){
-                case "won":
-                    updateSettings({
-                        board: settings.guess,
-                        gameStatus: "won",
-                        stars: response.stars,
-                        statistics: response.statistics
-                    });
-                    return { success: true, won: true };
-                case "lost":
-                    break;
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            let totalTargetTilesCount = 0;
+            let correctlyGuessedCount = 0;
+            let incorrectGuessesCount = 0;
+
+            // Evaluating dynamic coordinates against custom grid sizes
+            for (let r = 0; r < settings.boardSize; r++) {
+                for (let c = 0; c < settings.boardSize; c++) {
+                    const isActualTarget = settings.solutionGrid[r]?.[c] || false;
+                    const didUserGuess = settings.guess[r]?.[c] === 'X';
+
+                    if (isActualTarget) {
+                        totalTargetTilesCount++;
+                        if (didUserGuess) correctlyGuessedCount++;
+                    } else if (didUserGuess) {
+                        incorrectGuessesCount++;
+                    }
+                }
             }
 
-            updateSettings({
-                hints: response.hintCount,
-                gameStatus: response.gameStatus,
-                statistics: response.statistics
-            });
+            const totalMissedTiles = totalTargetTilesCount - correctlyGuessedCount;
+            const isPerfectMatch = totalMissedTiles === 0 && incorrectGuessesCount === 0;
 
-            return { success: true, won: false };
-        } catch (error) {
-            console.error('Error checking guess:', error);
-            return { success: false, won: false };
+            if (isPerfectMatch) {
+                updateSettings({
+                    gameStatus: "won",
+                    stars: 3,
+                    statistics: {
+                        ...settings.statistics,
+                        played: settings.statistics.played + 1,
+                        currentStreak: settings.statistics.currentStreak + 1,
+                        bestStreak: Math.max(settings.statistics.bestStreak, settings.statistics.currentStreak + 1)
+                    }
+                });
+                return { success: true, won: true };
+            } 
+            else if (correctlyGuessedCount >= totalTargetTilesCount * 0.7 && incorrectGuessesCount <= 2) {
+                updateSettings({
+                    gameStatus: "won", 
+                    stars: 2,
+                    statistics: {
+                        ...settings.statistics,
+                        played: settings.statistics.played + 1,
+                        currentStreak: settings.statistics.currentStreak + 1,
+                        bestStreak: Math.max(settings.statistics.bestStreak, settings.statistics.currentStreak + 1)
+                    }
+                });
+                return { success: true, won: true };
+            }
+            else if (correctlyGuessedCount > 0 && correctlyGuessedCount >= totalTargetTilesCount * 0.4) {
+                updateSettings({
+                    gameStatus: "won",
+                    stars: 1,
+                    statistics: {
+                        ...settings.statistics,
+                        played: settings.statistics.played + 1,
+                        currentStreak: settings.statistics.currentStreak + 1
+                    }
+                });
+                return { success: true, won: true };
+            }
+            else {
+                updateSettings({ 
+                    gameStatus: "lost",
+                    stars: 0,
+                    statistics: {
+                        ...settings.statistics,
+                        played: settings.statistics.played + 1,
+                        currentStreak: 0
+                    }
+                });
+                return { success: true, won: false };
+            }
         }
+
+        return { success: false, won: false };
     };
 
     const updateGuess = (x: number, y: number, value: string) => {
-        const newGuess = [...settings.guess];
-        newGuess[x][y] = value;
-        updateSettings({ guess: newGuess });
-    };
+        if (settings.gameStatus !== "guessing") return;
+        if (settings.board[x][y] !== '') return;
 
-    const value = {
-        settings,
-        isLoading,
-        error,
-        updateSettings,
-        takeHint,
-        makeGuess,
-        updateGuess,
-        loadingCoordinates
+        setSettings(prev => {
+            const newGuess = prev.guess.map(row => [...row]);
+            newGuess[x][y] = newGuess[x][y] === 'X' ? '' : 'X';
+
+            let totalGuessedCount = 0;
+            for (let r = 0; r < prev.boardSize; r++) {
+                for (let c = 0; c < prev.boardSize; c++) {
+                    if (newGuess[r][c] === 'X') {
+                        totalGuessedCount++;
+                    }
+                }
+            }
+
+            return {
+                ...prev,
+                guess: newGuess,
+                guessTileCount: totalGuessedCount
+            };
+        });
     };
 
     return (
-        <GameSettingsContext.Provider value={value}>
+        <GameSettingsContext.Provider value={{ settings, isLoading, error, updateSettings, takeHint, makeGuess, updateGuess, loadingCoordinates }}>
             {children}
         </GameSettingsContext.Provider>
     );
-}
+} //  THIS CLOSING BRACE SEALS THE PROVIDER BLOCK
 
 export function useGameSettings() {
     const context = useContext(GameSettingsContext);

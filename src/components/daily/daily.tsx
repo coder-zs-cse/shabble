@@ -12,7 +12,7 @@ import { useGameLogic } from '@/hooks'
 import { toast } from 'react-toastify'
 
 function Daily() {
-    const { settings, isLoading, error } = useGameSettings();
+    const { settings, isLoading, error,loadingCoordinates } = useGameSettings();
     const {
         showHelp,
         showStatistics,
@@ -51,6 +51,7 @@ function Daily() {
                                 gameStatus={settings.gameStatus}
                                 incorrectGuess={incorrectGuess}
                                 onTileClick={handleTileClick}
+                                loadingCoordinates={loadingCoordinates} // <--- ADDED THIS LINE
                             />
 
                             <GameControls

@@ -1,83 +1,103 @@
 'use client'
-import { TileLoader } from '@/components';
-import React, { useState } from 'react'
-import { tv } from 'tailwind-variants'
-import { TILE_CORRECT_EMOJI } from '@/constants/daily/game-constants'; // please do not change, it avoids circular dependency
+import React from 'react';
+import { tv } from 'tailwind-variants'; 
+
+const tileVariants = tv({
+    base: 'w-full aspect-square flex items-center justify-center font-bold border rounded-md text-base sm:text-lg select-none transition-all duration-300 transform active:scale-95 cursor-pointer',
+    variants: {
+        variant: {
+            default: 'bg-emerald-100/70 hover:bg-emerald-200/80 border-emerald-200 text-transparent',
+            radar: 'animate-pulse bg-amber-100 border-amber-400 text-amber-700 scale-102 z-10 shadow-sm',
+            hintLoaded: 'bg-amber-500 text-white border-amber-600 shadow-sm',
+            userGuess: 'bg-emerald-600 text-white border-emerald-700',
+            wrongMark: 'animate-pulse bg-red-500 text-white border-red-600 shadow-md font-extrabold'
+        }
+    },
+    defaultVariants: {
+        variant: 'default'
+    }
+});
 
 interface TileProps {
-  className?: string;
-  tileContent?: string;
-  guessContent?: string;
-  onClick?: () => Promise<void>;
-  gameStatus?: string;
-  incorrectGuess?: boolean;
+    rowIndex: number;
+    colIndex: number;
+    tileContent: string;   
+    guessContent?: string;  
+    gameStatus: string;     
+    isLoading?: boolean;
+    isNeighbor?: boolean;
+    isSolutionTarget: boolean;
+    onClick?: () => void;
+    className?: string;
 }
 
-const tile = tv({
-  base: "flex items-center justify-center rounded-md sm:rounded-xl md:rounded-xl font-bold text-2xl md:text-4xl cursor-pointer text-white shadow-[inset_0_-4px_0_rgba(0,0,0,0.05)]",
-  variants: {
-    status: {
-      "tile-empty": "bg-gray-200",
-      "tile-loading": "bg-yellow-400",
-      "tile-filled": "bg-yellow-400",
-      "guess-empty": "bg-green-200",
-      "guess-filled": "bg-green-600",
-      "guess-loading": "animate-guessLoading",
-      "guess-incorrect": "bg-red-600 animate-shake",
-      "won": "bg-green-600"
-    }
-  },
-  defaultVariants: {
-    status: "tile-empty"
-  }
-})
+export default function Tile({
+    tileContent,
+    guessContent,
+    gameStatus,
+    isLoading,
+    isNeighbor,
+    isSolutionTarget,
+    onClick,
+    className
+}: TileProps) {
 
-function Tile({ className, tileContent, guessContent, onClick, gameStatus, incorrectGuess }: TileProps) {
+    const isGameOver = gameStatus === "won" || gameStatus === "lost";
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+    const getVariantState = () => {
+        // --- PHASE 3: ENDGAME ---
+        if (isGameOver) {
+            if (guessContent === "X" && !isSolutionTarget) return "wrongMark"; 
+            if (isSolutionTarget) return "userGuess"; 
+            if (tileContent !== "") return "hintLoaded"; 
+            return "default";
+        }
 
-  const getTileStatus = () => {
-    switch (gameStatus) {
-      case "guess-loading":
-        if (guessContent) return "guess-loading";
-      case "won":
-        if (guessContent) return "won";
-      case "guessing":
-        return guessContent ? "guess-filled" : "guess-empty";
-      case "tile-loading":
-        return isLoading ?  "tile-loading" : tileContent ? "tile-filled" : "tile-empty";
-      default:
-        if (incorrectGuess && guessContent) return "guess-incorrect";
-        return (tileContent) ? "tile-filled" : "tile-empty";
-    }
-  };
+        // --- ACTIVE RADAR PULSE STATE ---
+        // FIXED: Ensures neighbor radar triggers cleanly while tile-loading operations are active
+        if (gameStatus === "tile-loading" && isNeighbor) {
+            return "radar";
+        }
 
-  const handleTileClick = async (): Promise<void> => {
-    setIsLoading(true);
-    if(onClick) await onClick()
-    setIsLoading(false);
-  }
+        // --- PHASE 2: MAKE GUESS GAMEPLAY ---
+        if (gameStatus === "guessing" && guessContent === "X") {
+            return "userGuess"; 
+        }
 
-  const getTileContent = () => {
-    if (gameStatus === "won" && guessContent) return TILE_CORRECT_EMOJI;
-    if (gameStatus === "tile-loading") {
-      return tileContent ? tileContent : isLoading ? <TileLoader /> : '';
-    }
-    if (["playing", "lost"].includes(gameStatus || "") && tileContent) return tileContent;
-    return '';
-  };
+        // --- PHASE 1: ACTIVE HINT GAMEPLAY ---
+        if (tileContent !== "") return "hintLoaded"; 
+        
+        return "default";
+    };
 
-  return (
-    <div
-      onClick={handleTileClick}
-      className={tile({
-        status: getTileStatus(),
-        className
-      })}
-    >
-      {getTileContent()}
-    </div>
-  )
+    const getTileContent = () => {
+        //  Show a loader ellipsis string inside the center cell that was directly clicked
+        if (gameStatus === "tile-loading" && isLoading) return '...';
+
+        // --- PHASE 3: ENDGAME TEXT REPORTING ---
+        if (isGameOver) {
+            if (guessContent === "X" && isSolutionTarget) return ".";
+            if (guessContent === "X" && !isSolutionTarget) return "X";
+            if (isSolutionTarget) return "";
+        }
+
+        // --- LIVE GAMEPLAY TEXT REPORTING ---
+        if (gameStatus === "guessing" && guessContent === "X") return ""; 
+        return tileContent || ''; 
+    };
+
+    return (
+        <button 
+            type="button"
+            onClick={onClick}
+            className={tileVariants({ variant: getVariantState(), className })}
+            disabled={
+                isGameOver || 
+                gameStatus === "tile-loading" || 
+                (tileContent !== "" && tileContent !== "X")
+            }
+        >
+            {getTileContent()}
+        </button>
+    );
 }
-
-export default Tile
