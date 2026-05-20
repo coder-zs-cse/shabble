@@ -42,3 +42,14 @@ export const checkGuess = async (puzzleId: number, guess: string[][], attempts: 
         throw error;
     }
 }
+
+export const getSolution = async (puzzleId: number): Promise<string[][]> => {
+    try {
+        const response = await axiosSecure.get(`/puzzle/solution?puzzleId=${puzzleId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching solution:', error);
+        toast.error("Solution API not yet available on backend");
+        throw error;
+    }
+}
