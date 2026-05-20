@@ -15,7 +15,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         const { puzzleId, x, y } = data;
 
         const currentBoard = await getCurrentBoard({ puzzleId });
-        console.log("Current board in hint",currentBoard)
+        // console.log("Current board in hint",currentBoard)
         const board = currentBoard.board as { x: number, y: number }[];
 
         const adjacentCount = getAdjacentCount(board, currentBoard.boardSize, x, y);

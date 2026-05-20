@@ -8,7 +8,7 @@ import { getStatistics, incrementPlayedCount, updateStars, updateStreak } from "
 
 export const getUserProgress = async (userId: string, puzzleId: number): Promise<UserProgress> => {
     try {
-        console.log("parameters in get user progress", userId, puzzleId)
+        // console.log("parameters in get user progress", userId, puzzleId)
         let userProgress;
         userProgress = await prisma.userProgress.findUnique({
             where: { userId_puzzleId: { userId, puzzleId } }
@@ -41,9 +41,9 @@ interface UpdateUserProgressParams {
 
 export const updateUserProgress = async ({ userId, puzzleId, boardSize, hint, status }: UpdateUserProgressParams): Promise<UserProgress> => {
     try {
-        console.log("updateUserProgress", { userId, puzzleId, boardSize, hint, status });
+        // console.log("updateUserProgress", { userId, puzzleId, boardSize, hint, status });
         const userProgress = await getUserProgress(userId, puzzleId);
-        console.log("userProgress in updateUserProgress", userProgress);
+        // console.log("userProgress in updateUserProgress", userProgress);
 
         if (hint) {
             const hintCoordinates = userProgress.hintCoordinates as { x: number, y: number }[];
@@ -70,7 +70,7 @@ export const updateUserProgress = async ({ userId, puzzleId, boardSize, hint, st
             userProgress.hintCount = Math.min(updatedHintCount, MAX_HINTS[boardSize as keyof typeof MAX_HINTS]);
 
         }
-        console.log("userProgress in updateUserProgress after", userProgress);
+        // console.log("userProgress in updateUserProgress after", userProgress);
 
         const updatedUserProgress = await prisma.userProgress.update({
             where: { userId_puzzleId: { userId, puzzleId } },
@@ -91,7 +91,7 @@ export const updateUserProgress = async ({ userId, puzzleId, boardSize, hint, st
 export const getGameStatus = async (date: string, boardSize: number, userId: string): Promise<GameStatusResponse> => {
     try {
         const currentBoard = await getCurrentBoard({ date, boardSize });
-        console.log("currentBoard in getGameStatus", currentBoard);
+        // console.log("currentBoard in getGameStatus", currentBoard);
         const userProgress = await prisma.userProgress.findUnique({
             where: { userId_puzzleId: { userId, puzzleId: currentBoard.id } }
         });
