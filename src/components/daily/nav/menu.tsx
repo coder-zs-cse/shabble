@@ -44,7 +44,7 @@ const Menu: React.FC<MenuProps> = ({
     ];
 
     //  Handle clicking dynamic sizes cleanly
-    const handleDifficultyClick = (size: number) => {
+   const handleDifficultyClick = (size: 5 | 6 | 7) => {
         // 1. Instantly update the state size to regenerate the board arrays
         updateSettings({ boardSize: size });
         
@@ -91,7 +91,7 @@ const Menu: React.FC<MenuProps> = ({
                             <div 
                                 className={`flex gap-2 items-center h-[64px] hover:bg-white cursor-pointer ${option.size === settings.boardSize ? 'bg-gray-200 text-black' : ''}`} 
                                 key={index} 
-                                onClick={() => handleDifficultyClick(option.size)}
+                                onClick={() => handleDifficultyClick(option.size as 5 | 6 | 7)}
                             >
                                 <span className={`text-[20px] font-bold pl-4 ${option.levelClassName}`}>{option.level}</span>
                                 <span className='text-[25px] font-bold'>{option.label}</span>

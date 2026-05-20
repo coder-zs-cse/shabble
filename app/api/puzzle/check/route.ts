@@ -15,11 +15,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const { puzzleId, guess } = data;
 
         const currentBoard = await getCurrentBoard({ puzzleId });
-        const isCorrect = checkGuess(currentBoard.board as { x: number, y: number }[], guess);
-        const updatedUserProgress = await updateUserProgress({ userId: data.userId!, boardSize: currentBoard.boardSize, puzzleId: currentBoard.id, status: isCorrect ? 'CORRECT' : 'WRONG' });
-        const statistics = await getStatistics(userId!);
-        return NextResponse.json<checkGuessResponse>({ isCorrect, hintCount: updatedUserProgress.hintCount, gameStatus: updatedUserProgress.status, stars: updatedUserProgress.stars || undefined, statistics}, { status: 200 });
-    } catch (error) {
+    const isCorrect = checkGuess((currentBoard as any).board as { x: number; y: number }[], guess);
+
+    const updatedUserProgress = await updateUserProgress({ 
+      userId: data.userId!, 
+      boardSize: (currentBoard as any).boardSize, 
+      puzzleId: parseInt(currentBoard.id, 10), 
+      status: isCorrect ? 'CORRECT' : 'WRONG' 
+    });
+
+    const statistics = await getStatistics(userId!);
+
+    return NextResponse.json({ 
+      isCorrect, 
+      hintCount: (updatedUserProgress as any).hintCount ?? 0, 
+      gameStatus: (updatedUserProgress as any).status ?? 'PLAYING', 
+      stars: (updatedUserProgress as any).stars ?? undefined, 
+      statistics 
+    }, { status: 200 });
+} catch (error) {
         console.error("Error checking guess:", error);
         return NextResponse.json({ error: "Error checking guess" }, { status: 500 });
     }
