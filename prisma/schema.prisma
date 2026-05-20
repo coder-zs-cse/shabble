@@ -1,57 +1,30 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("POSTGRES_URL")
-}
-
 model DailyPuzzle {
-  id           Int            @id @default(autoincrement())
-  date         DateTime       @db.Date
-  board        Json
+  id           String         @id @default(cuid())
+  date         DateTime       @unique
+  shape        String         // JSON string representing the grid pattern
   boardSize    Int
   createdAt    DateTime       @default(now())
   UserProgress UserProgress[]
-
-  @@unique([date, boardSize])
-}
-
-model User {
-  id               String         @id
-  played           Int            @default(0)
-  totalStars       Int            @default(0)
-  currentStreak    Int            @default(0)
-  bestStreak       Int            @default(0)
-  starDistribution Int[]          @default([0, 0, 0, 0, 0, 0])
-  createdAt        DateTime       @default(now())
-  progress         UserProgress[]
-}
-
-enum GameStatus {
-  playing
-  won
-  lost
 }
 
 model UserProgress {
-  id                Int         @id @default(autoincrement())
-  userId            String
-  puzzleId          Int
-  hintCoordinates   Json        @default("[]")
-  hintCount         Int         @default(0)
-  status            GameStatus  @default(playing)
-  stars             Int?
-  createdAt         DateTime    @default(now())
-  user              User        @relation(fields: [userId], references: [id])
-  puzzle            DailyPuzzle @relation(fields: [puzzleId], references: [id])
+  id            String      @id @default(cuid())
+  userId        String      // Cookie-based anonymous session ID
+  dailyPuzzleId String
+  puzzle        DailyPuzzle @relation(fields: [dailyPuzzleId], references: [id], onDelete: Cascade)
+  guesses       String      // JSON string of guessed tiles array
+  completed     Boolean     @default(false)
+  score         Int         @default(0)
+  createdAt     DateTime    @default(now())
 
-  @@unique([userId, puzzleId])
+  @@unique([userId, dailyPuzzleId])
 }

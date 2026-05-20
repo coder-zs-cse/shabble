@@ -10,6 +10,7 @@ interface GameStatusProps {
     gameStatus: GameState
     incorrectGuess: boolean
     onTileClick: (x: number, y: number) => Promise<void>
+    loadingCoordinates?: { x: number; y: number }
 }
 
 export function GameStatus({ 
@@ -18,7 +19,8 @@ export function GameStatus({
     guess, 
     gameStatus, 
     incorrectGuess, 
-    onTileClick 
+    onTileClick ,
+    loadingCoordinates
 }: GameStatusProps) {
     return (
         <>
@@ -32,6 +34,7 @@ export function GameStatus({
                 gameStatus={gameStatus}
                 incorrectGuess={incorrectGuess}
                 className='!w-[80%] md:!w-[70%] mt-20'
+                loadingCoordinates={loadingCoordinates} // <--- ADDED THIS LINE
             />
             <GameStatusMessage />
         </>

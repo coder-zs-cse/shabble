@@ -1,6 +1,7 @@
 'use client'
 import { Divider, Title } from '@/components'
-import { useGameSettings } from '@/contexts'
+// Ensure your context path matches correctly
+import { useGameSettings } from '@/contexts/puzzle/game-settings-context' 
 import React from 'react'
 import { FaHeart, FaQuestion } from 'react-icons/fa'
 import { IoClose } from 'react-icons/io5'
@@ -9,7 +10,7 @@ import { MdLeaderboard } from 'react-icons/md'
 interface MenuProps {
     isOpen: boolean
     onClose: () => void
-    onSelectDifficulty: (size: number) => void
+    onSelectDifficulty?: (size: number) => void // Marked optional since context handles it now!
     onShowStatistics: () => void
     onShowHelp: () => void
 }
@@ -21,7 +22,8 @@ const Menu: React.FC<MenuProps> = ({
     onShowStatistics,
     onShowHelp,
 }) => {
-    const { settings } = useGameSettings();
+    //  Connect updateSettings to catch size shifts!
+    const { settings, updateSettings } = useGameSettings();
 
     const difficultyOptions = [
         { size: 5, label: 'EASY', level: '5 x 5', levelClassName: 'text-green-600' },
@@ -41,6 +43,20 @@ const Menu: React.FC<MenuProps> = ({
         },
     ];
 
+    //  Handle clicking dynamic sizes cleanly
+   const handleDifficultyClick = (size: 5 | 6 | 7) => {
+        // 1. Instantly update the state size to regenerate the board arrays
+        updateSettings({ boardSize: size });
+        
+        // 2. Fallback execution helper for your parent hooks if needed
+        if (onSelectDifficulty) {
+            onSelectDifficulty(size);
+        }
+        
+        // 3. Automatically shut the drawer menu panel
+        onClose();
+    };
+
     return (
         <>
             {/* Overlay */}
@@ -57,7 +73,7 @@ const Menu: React.FC<MenuProps> = ({
                 transform transition-transform duration-300 ease-in-out z-[1000]
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
-                <div className="">
+                <div>
                     <div className="flex items-center justify-between p-4">
                         <Title title="MENU" className='!text-md' />
                         <button
@@ -69,34 +85,34 @@ const Menu: React.FC<MenuProps> = ({
                     </div>
                     <Divider isVertical={false} className='' />
 
-                    <div className=" mt-4">
-
+                    <div className="mt-4">
                         {difficultyOptions.map((option, index) => (
-                            <div className={`flex gap-2 items-center h-[64px] hover:bg-white cursor-pointer ${option.size === settings.boardSize ? 'bg-gray-200 text-black' : ''}`} key={index} onClick={() => onSelectDifficulty(option.size)}>
-                                {/* <div className='flex gap-2 items-center h-[64px] hover:bg-white cursor-pointer' key={index} onClick={() => onSelectDifficulty(option.size)}> */}
-                                    <span className={`text-[20px] font-bold pl-4 ${option.levelClassName}`}>{option.level}</span>
-                                    <span className='text-[25px] font-bold '>{option.label}</span>
-                                </div>
-
+                            // Updated onClick to call our context updater pipeline!
+                            <div 
+                                className={`flex gap-2 items-center h-[64px] hover:bg-white cursor-pointer ${option.size === settings.boardSize ? 'bg-gray-200 text-black' : ''}`} 
+                                key={index} 
+                                onClick={() => handleDifficultyClick(option.size as 5 | 6 | 7)}
+                            >
+                                <span className={`text-[20px] font-bold pl-4 ${option.levelClassName}`}>{option.level}</span>
+                                <span className='text-[25px] font-bold'>{option.label}</span>
+                            </div>
                         ))}
 
-                                <Divider isVertical={false} className='my-4' />
+                        <Divider isVertical={false} className='my-4' />
 
-                                {menuItems.map((item, index) => (
-                                    <div className='flex gap-1 items-center hover:bg-white rounded cursor-pointer' onClick={item.onClick} key={index}>
-                                        <div className='pl-3'>{item.icon && <item.icon size={30} />}</div>
-                                        <div
-                                            className="w-full text-left p-3 text-[25px] uppercase rounded text-[20px] font-bold"
-                                        >
-                                            {item.label}
-                                        </div>
-                                    </div>
-                                ))}
+                        {menuItems.map((item, index) => (
+                            <div className='flex gap-1 items-center hover:bg-white rounded cursor-pointer' onClick={item.onClick} key={index}>
+                                <div className='pl-3'>{item.icon && <item.icon size={30} />}</div>
+                                <div className="w-full text-left p-3 uppercase rounded text-[20px] font-bold">
+                                    {item.label}
+                                </div>
                             </div>
+                        ))}
+                    </div>
                 </div>
-                </div>
-            </>
-            )
-}
+            </div>
+        </>
+    );
+};
 
-            export default Menu
+export default Menu;
