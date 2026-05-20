@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib";
 
@@ -34,9 +35,9 @@ export async function GET(req: NextRequest) {
         // 2. Loop through the database coordinates and mark the correct tiles with a "1"
         if (Array.isArray(coordinates)) {
             coordinates.forEach(coord => {
-                // y is the row, x is the column
-                if (coord.y < boardSize && coord.x < boardSize) {
-                    solutionGrid[coord.x][coord.y] = "1"; 
+                // Direct standard matrix mapping: Y is the row index, X is the column index
+                if (coord.y >= 0 && coord.y < boardSize && coord.x >= 0 && coord.x < boardSize) {
+                    solutionGrid[coord.y][coord.x] = "1";
                 }
             });
         }
