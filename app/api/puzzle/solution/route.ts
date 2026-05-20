@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
             coordinates.forEach(coord => {
                 // y is the row, x is the column
                 if (coord.y < boardSize && coord.x < boardSize) {
-                    solutionGrid[coord.y][coord.x] = "1"; 
+                    solutionGrid[coord.x][coord.y] = "1"; 
                 }
             });
         }
