@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from 'react';
 import { tv } from 'tailwind-variants'; 
 
@@ -54,12 +54,12 @@ export default function Tile({
         }
 
         // --- ACTIVE RADAR PULSE STATE ---
-        // FIXED: Ensures neighbor radar triggers cleanly while tile-loading operations are active
         if (gameStatus === "tile-loading" && isNeighbor) {
             return "radar";
         }
 
         // --- PHASE 2: MAKE GUESS GAMEPLAY ---
+        // Prioritize showing userGuess color even if the tile has an underlying hint number
         if (gameStatus === "guessing" && guessContent === "X") {
             return "userGuess"; 
         }
@@ -71,7 +71,7 @@ export default function Tile({
     };
 
     const getTileContent = () => {
-        //  Show a loader ellipsis string inside the center cell that was directly clicked
+        // Show a loader ellipsis string inside the center cell that was directly clicked
         if (gameStatus === "tile-loading" && isLoading) return '...';
 
         // --- PHASE 3: ENDGAME TEXT REPORTING ---
@@ -82,6 +82,7 @@ export default function Tile({
         }
 
         // --- LIVE GAMEPLAY TEXT REPORTING ---
+        // If the user selects this tile during guessing mode, hide the underlying hint number to show the green guess style cleanly
         if (gameStatus === "guessing" && guessContent === "X") return ""; 
         return tileContent || ''; 
     };
@@ -93,8 +94,9 @@ export default function Tile({
             className={tileVariants({ variant: getVariantState(), className })}
             disabled={
                 isGameOver || 
+                gameStatus === "guess-loading" ||
                 gameStatus === "tile-loading" || 
-                (tileContent !== "" && tileContent !== "X")
+                (gameStatus === "playing" && tileContent !== "") // Only disable clicked hint tiles while STILL in discovery phase!
             }
         >
             {getTileContent()}

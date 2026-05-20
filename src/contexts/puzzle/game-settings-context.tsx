@@ -139,7 +139,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             let correctlyGuessedCount = 0;
             let incorrectGuessesCount = 0;
 
-            // Evaluating dynamic coordinates against custom grid sizes
+            // Evaluated with proper clean iteration updates
             for (let r = 0; r < settings.boardSize; r++) {
                 for (let c = 0; c < settings.boardSize; c++) {
                     const isActualTarget = settings.solutionGrid[r]?.[c] || false;
@@ -155,25 +155,24 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             }
 
             const totalMissedTiles = totalTargetTilesCount - correctlyGuessedCount;
-            const isPerfectMatch = totalMissedTiles === 0 && incorrectGuessesCount === 0;
-
-            if (isPerfectMatch) {
-                updateSettings({
-                    gameStatus: "won",
-                    stars: 3,
-                    statistics: {
-                        ...settings.statistics,
-                        played: settings.statistics.played + 1,
-                        currentStreak: settings.statistics.currentStreak + 1,
-                        bestStreak: Math.max(settings.statistics.bestStreak, settings.statistics.currentStreak + 1)
-                    }
-                });
-                return { success: true, won: true };
+            
+            // DYNAMIC STAR ALLOCATION (Easy: 5, Medium: 6, Hard: 7)
+            let earnedStars = 0;
+            
+            if (incorrectGuessesCount === 0 && totalMissedTiles === 0) {
+                earnedStars = 3; // Perfect match
             } 
-            else if (correctlyGuessedCount >= totalTargetTilesCount * 0.7 && incorrectGuessesCount <= 2) {
+            else if (incorrectGuessesCount <= 1 && totalMissedTiles <= 1) {
+                earnedStars = 2; // Missed 1 or 1 wrong item max
+            } 
+            else if (incorrectGuessesCount <= 2 && correctlyGuessedCount >= 3) {
+                earnedStars = 1; // 1 Star performance cushion
+            }
+
+            if (earnedStars > 0) {
                 updateSettings({
-                    gameStatus: "won", 
-                    stars: 2,
+                    gameStatus: "won",
+                    stars: earnedStars,
                     statistics: {
                         ...settings.statistics,
                         played: settings.statistics.played + 1,
@@ -182,20 +181,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
                     }
                 });
                 return { success: true, won: true };
-            }
-            else if (correctlyGuessedCount > 0 && correctlyGuessedCount >= totalTargetTilesCount * 0.4) {
-                updateSettings({
-                    gameStatus: "won",
-                    stars: 1,
-                    statistics: {
-                        ...settings.statistics,
-                        played: settings.statistics.played + 1,
-                        currentStreak: settings.statistics.currentStreak + 1
-                    }
-                });
-                return { success: true, won: true };
-            }
-            else {
+            } else {
                 updateSettings({ 
                     gameStatus: "lost",
                     stars: 0,
@@ -214,8 +200,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
 
     const updateGuess = (x: number, y: number, value: string) => {
         if (settings.gameStatus !== "guessing") return;
-        if (settings.board[x][y] !== '') return;
-
+        
         setSettings(prev => {
             const newGuess = prev.guess.map(row => [...row]);
             newGuess[x][y] = newGuess[x][y] === 'X' ? '' : 'X';
@@ -242,7 +227,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             {children}
         </GameSettingsContext.Provider>
     );
-} //  THIS CLOSING BRACE SEALS THE PROVIDER BLOCK
+}
 
 export function useGameSettings() {
     const context = useContext(GameSettingsContext);
