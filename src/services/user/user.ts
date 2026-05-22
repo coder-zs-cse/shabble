@@ -1,6 +1,7 @@
 import { MAX_STARS } from "@/constants";
 import { prisma } from "@/lib";
 import { StatisticsProps } from "@/types";
+import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
 
 export interface LeaderboardEntry {
@@ -81,34 +82,82 @@ export const updateStreak = async (userId: string, won: boolean): Promise<void> 
     }
 }
 
-export const getOrCreateUserByGoogleId = async (
-    googleId: string,
+export const linkProviderToUser = async (
+    provider: string,
+    providerId: string,
     name: string | null,
-    email: string | null
+    email: string | null,
+    anonymousUserId?: string | null
 ): Promise<string> => {
-    try {
-        const existing = await prisma.user.findUnique({
-            where: { googleId },
-            select: { id: true }
-        });
+    const existing = await prisma.user.findUnique({
+        where: { provider_providerId: { provider, providerId } },
+        select: { id: true }
+    });
 
-        if (existing) {
-            await prisma.user.update({
-                where: { id: existing.id },
-                data: { name, email }
-            });
-            return existing.id;
-        }
-
-        const userId = crypto.randomBytes(4).toString('hex').toUpperCase();
-        await prisma.user.create({
-            data: { id: userId, googleId, name, email, createdAt: new Date() }
+    if (existing) {
+        await prisma.user.update({
+            where: { id: existing.id },
+            data: { name, email }
         });
-        return userId;
-    } catch (error) {
-        console.error('Error in getOrCreateUserByGoogleId:', error);
-        throw error;
+        return existing.id;
     }
+
+    // If an anonymous user exists and isn't yet linked to any provider, claim that record
+    if (anonymousUserId) {
+        const anon = await prisma.user.findUnique({
+            where: { id: anonymousUserId },
+            select: { id: true, provider: true }
+        });
+        if (anon && !anon.provider) {
+            await prisma.user.update({
+                where: { id: anonymousUserId },
+                data: { provider, providerId, name, email }
+            });
+            return anonymousUserId;
+        }
+    }
+
+    const userId = crypto.randomBytes(4).toString('hex').toUpperCase();
+    await prisma.user.create({
+        data: { id: userId, provider, providerId, name, email, createdAt: new Date() }
+    });
+    return userId;
+}
+
+export const mergeAnonymousUser = async (anonymousUserId: string, authenticatedUserId: string): Promise<void> => {
+    if (anonymousUserId === authenticatedUserId) return;
+
+    const anon = await prisma.user.findUnique({ where: { id: anonymousUserId } });
+    if (!anon) return;
+
+    const anonProgress = await prisma.userProgress.findMany({ where: { userId: anonymousUserId } });
+    for (const prog of anonProgress) {
+        await prisma.userProgress.upsert({
+            where: { userId_puzzleId: { userId: authenticatedUserId, puzzleId: prog.puzzleId } },
+            update: {},
+            create: {
+                userId: authenticatedUserId,
+                puzzleId: prog.puzzleId,
+                hintCoordinates: prog.hintCoordinates as Prisma.InputJsonValue,
+                hintCount: prog.hintCount,
+                status: prog.status,
+                stars: prog.stars,
+            }
+        });
+    }
+
+    await prisma.user.update({
+        where: { id: authenticatedUserId },
+        data: {
+            played: { increment: anon.played },
+            totalStars: { increment: anon.totalStars },
+            bestStreak: { increment: anon.bestStreak },
+            currentStreak: { increment: anon.currentStreak },
+        }
+    });
+
+    await prisma.userProgress.deleteMany({ where: { userId: anonymousUserId } });
+    await prisma.user.delete({ where: { id: anonymousUserId } });
 }
 
 export const updateUserCountry = async (userId: string, countryCode: string): Promise<void> => {
@@ -132,8 +181,7 @@ export const getLeaderboard = async (): Promise<LeaderboardEntry[]> => {
         const entries = await prisma.userProgress.findMany({
             where: {
                 status: 'won',
-                puzzle: { date: { gte: startOfToday, lt: startOfTomorrow } },
-                user: { public: true }
+                puzzle: { date: { gte: startOfToday, lt: startOfTomorrow } }
             },
             select: {
                 stars: true,

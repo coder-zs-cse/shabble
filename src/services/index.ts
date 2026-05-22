@@ -24,7 +24,8 @@ import {
     updateStreak,
     updateStars,
     getStatistics,
-    getOrCreateUserByGoogleId,
+    linkProviderToUser,
+    mergeAnonymousUser,
     updateUserCountry,
     getLeaderboard
 } from "./user/user";
@@ -35,7 +36,8 @@ export {
     updateStreak,
     updateStars,
     getStatistics,
-    getOrCreateUserByGoogleId,
+    linkProviderToUser,
+    mergeAnonymousUser,
     updateUserCountry,
     getLeaderboard
 };

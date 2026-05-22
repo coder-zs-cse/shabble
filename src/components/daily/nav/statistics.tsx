@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { Title } from '@/components';
 import { Leaderboard } from './leaderboard';
@@ -52,11 +52,43 @@ type Tab = 'stats' | 'leaderboard';
 
 function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
   const [activeTab, setActiveTab] = useState<Tab>('stats');
+  const [playerId, setPlayerId] = useState<string | null>(null);
   const { data: session, status } = useSession();
   const isSignedIn = status === 'authenticated';
   const maxDistribution = statistics.starDistribution.reduce((acc, curr) => acc + curr, 0);
-  const playerId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
   const displayName = isSignedIn ? (session?.user?.name ?? playerId) : playerId;
+
+  useEffect(() => {
+    setPlayerId(localStorage.getItem('userId'));
+  }, []);
+
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+    const dbUserId = (session?.user as { dbUserId?: string })?.dbUserId;
+    if (!dbUserId) return;
+    const localUserId = localStorage.getItem('userId');
+    if (localUserId && localUserId !== dbUserId) {
+      fetch('/api/user/merge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anonymousUserId: localUserId }),
+      }).finally(() => localStorage.setItem('userId', dbUserId));
+    } else if (!localUserId) {
+      localStorage.setItem('userId', dbUserId);
+    }
+  }, [status, session]);
+
+  const handleSignIn = async () => {
+    const anonymousUserId = localStorage.getItem('userId');
+    if (anonymousUserId) {
+      await fetch('/api/user/set-anon-cookie', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: anonymousUserId }),
+      });
+    }
+    signIn('google');
+  };
 
   return (
     <div
@@ -64,7 +96,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
       onClick={() => setShowStatistics(false)}
     >
       <div
-        className="flex flex-col bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-2xl"
+        className="flex flex-col bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-2xl h-[540px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -95,7 +127,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
         </div>
 
         {activeTab === 'stats' ? (
-          <>
+          <div className="flex flex-col flex-1 overflow-y-auto">
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-2 mb-8">
               <StatBox label="Played" value={statistics.played} />
@@ -131,7 +163,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
                 </button>
               ) : (
                 <button
-                  onClick={() => signIn('google')}
+                  onClick={handleSignIn}
                   className="flex items-center gap-1 bg-white border border-gray-300 rounded px-3 py-1 text-xs font-medium hover:bg-gray-50 shadow-sm"
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 48 48">
@@ -144,9 +176,11 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
                 </button>
               )}
             </div>
-          </>
+          </div>
         ) : (
-          <Leaderboard />
+          <div className="flex flex-col flex-1 overflow-y-auto">
+            <Leaderboard />
+          </div>
         )}
       </div>
     </div>

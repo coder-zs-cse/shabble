@@ -34,11 +34,13 @@ model User {
   starDistribution Int[]          @default([0, 0, 0, 0, 0, 0])
   createdAt        DateTime       @default(now())
   name             String?
-  email            String?        @unique
-  googleId         String?        @unique
+  email            String?
+  provider         String?
+  providerId       String?
   countryCode      String?
-  public           Boolean        @default(true)
   progress         UserProgress[]
+
+  @@unique([provider, providerId])
 }
 
 enum GameStatus {

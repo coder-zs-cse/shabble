@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { getOrCreateUserByGoogleId } from "@/services";
+import { linkProviderToUser } from "@/services";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -11,11 +11,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ],
     callbacks: {
         async jwt({ token, account }) {
-            if (account?.provider === "google" && account.providerAccountId) {
-                const dbUserId = await getOrCreateUserByGoogleId(
+            if (account?.provider && account.providerAccountId) {
+                const dbUserId = await linkProviderToUser(
+                    account.provider,
                     account.providerAccountId,
                     token.name ?? null,
-                    token.email ?? null
+                    token.email ?? null,
                 );
                 token.dbUserId = dbUserId;
             }
