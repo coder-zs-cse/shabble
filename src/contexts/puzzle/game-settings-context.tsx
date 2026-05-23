@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { GameSettings, GameStatusResponse } from '@/types';
 import { checkGuess, getGameStatus, getHint } from '@/api/daily-api';
+import { getUserId } from '@/api/user';
 import { DEFAULT_BOARD_SIZE, MAX_HINTS, MAX_STARS } from '@/constants';
 import { coordinatesToBoard } from '@/lib';
 
@@ -47,6 +48,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             setIsLoading(true);
             setError(null);
             try {
+                await getUserId();
                 const data: GameStatusResponse = await getGameStatus(settings.date, settings.boardSize);
                 setSettings(prev => ({
                     ...prev,

@@ -10,16 +10,15 @@ export async function middleware(request: NextRequest) {
         }
 
         const userId = request.headers.get('userId')
-        const response = NextResponse.next()
-        
-        // If no userId in header or user doesn't exist, create new user
-        if (!userId) {
+        const authRoute = request.nextUrl.pathname.startsWith('/api/auth');
+        const leaderboardRoute = request.nextUrl.pathname === '/api/leaderboard';
+
+        if (!userId && !authRoute && !leaderboardRoute) {
             const newUserResponse = await fetch(`${request.nextUrl.origin}/api/new-user`, {
                 method: 'PUT',
             })
             const data = await newUserResponse.json()
             
-            // Create a new request with the updated headers
             const newRequest = new Request(request.url, {
                 method: request.method,
                 headers: new Headers(request.headers),
@@ -27,7 +26,6 @@ export async function middleware(request: NextRequest) {
             })
             newRequest.headers.set('userId', data.userId)
             
-            // Create response from the new request
             const response = NextResponse.rewrite(new URL(request.url), {
                 request: newRequest
             })
@@ -35,7 +33,7 @@ export async function middleware(request: NextRequest) {
             return response
         }
 
-        return response
+        return NextResponse.next()
     } catch (error) {
         console.error('Error in middleware:', error)
         return NextResponse.next()
