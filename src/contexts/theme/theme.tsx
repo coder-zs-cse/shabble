@@ -19,18 +19,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         if (saved === 'dark') {
             document.documentElement.classList.add('dark');
             setIsDark(true);
+        } else if (saved === 'light') {
+            document.documentElement.classList.remove('dark');
+            setIsDark(false);
         }
     }, []);
 
     const toggleDark = () => {
-        if (isDark) {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        }
-        setIsDark(!isDark);
+        setIsDark((prev) => {
+            const next = !prev;
+            if (next) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+            return next;
+        });
     };
 
     return (

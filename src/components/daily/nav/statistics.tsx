@@ -3,14 +3,10 @@ import { Title } from '@/components'
 
 // Subcomponents
 const StatBox = ({ label, value }: { label: string; value: number }) => (
-  <div className="flex flex-col items-center justify-center py-4 border-b hover:bg-gray-100  group">
-    <div className="flex items-center justify-center text-sm text-gray-600 uppercase tracking-wide w-full h-full text-center group-hover:!text-black">{label}</div>
-    <div className="text-2xl font-semibold text-center w-full h-full group-hover:!text-black">{value}</div>
+  <div className="flex flex-col items-center justify-center py-4 border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 group">
+    <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide w-full h-full text-center group-hover:!text-black dark:group-hover:!text-white">{label}</div>
+    <div className="text-2xl font-semibold text-black dark:text-white text-center w-full h-full group-hover:!text-black dark:group-hover:!text-white">{value}</div>
   </div>
-  // <div className="flex items-center justify-center">
-  //   <div className="text-xl text-gray-600 bg-gray-200 uppercase text-right tracking-wide w-full h-full">{label}</div>
-  //   <div className="text-2xl font-semibold w-full h-full pl-4">{value}</div>
-  // </div>
 )
 
 const StarBar = ({ stars, value, maxValue }: { stars: number; value: number; maxValue: number }) => {
@@ -18,11 +14,11 @@ const StarBar = ({ stars, value, maxValue }: { stars: number; value: number; max
   
   return (
     <div className="flex items-center gap-2 mb-2">
-      <div className="w-8 flex items-center justify-center">
+      <div className="w-8 flex items-center justify-center dark:text-white">
         {stars === 0 ? '✕' : `${stars}`}
         {stars > 0 && <span className="text-yellow-500 ml-1">★</span>}
       </div>
-      <div className="flex-1 h-8 bg-gray-100 rounded-sm overflow-hidden">
+      <div className="flex-1 h-8 bg-gray-100 dark:bg-gray-700 rounded-sm overflow-hidden">
         {value > 0 && (
           <div 
             className={`h-full ${stars === 0 ? 'bg-red-400' : 'bg-green-500'} transition-all duration-500`}
@@ -30,7 +26,7 @@ const StarBar = ({ stars, value, maxValue }: { stars: number; value: number; max
           />
         )}
       </div>
-      <div className="w-12 text-right text-sm text-gray-600">
+      <div className="w-12 text-right text-sm text-gray-600 dark:text-gray-400">
         {percentage.toFixed(0)}%
       </div>
     </div>
@@ -58,7 +54,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
       onClick={() => setShowStatistics(false)}
     >
       <div 
-        className="flex flex-col bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-2xl"
+        className="flex flex-col bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-[90%] max-w-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -82,7 +78,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
 
         {/* Star Distribution */}
         <div className="mb-8">
-          <Title title='STAR DISTRIBUTION' className='flex-1 text-center text-[20px] md:!text-[25px] font-normal mb-2' />
+          <Title title='STAR DISTRIBUTION' className='flex-1 text-center text-[20px] md:!text-[25px] font-normal mb-2 dark:text-white' />
           <div className="space-y-2">
             {statistics.starDistribution.map((value, index) => (
               <StarBar 

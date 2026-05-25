@@ -45,7 +45,7 @@ const Menu: React.FC<MenuProps> = ({
         <>
             {isOpen && (
                 <div
-                    className="absolute inset-0 bg-black/50 z-[999]"
+                    className="fixed inset-0 bg-black/50 z-[999]"
                     onClick={onClose}
                 />
             )}
