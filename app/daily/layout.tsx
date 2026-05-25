@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: "Shabble",
-  description: "Shabble is a shape guessing puzzle game. Play daily to get a new shape to guess. Solve with as less attempts as possible.",
+  description: "Shabble is a shape guessing puzzle game. Play daily to get a new shape to guess. Solve with as less attempts as possible."
 };
 
 function layout({ children }: { children: React.ReactNode }) {
