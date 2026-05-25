@@ -11,6 +11,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        surface: "var(--surface)",
+        "surface-muted": "var(--surface-muted)",
+        "text-muted": "var(--text-muted)",
+        "border-muted": "var(--border-muted)",
       },
       fontFamily: {
         sans: ['Nunito', 'sans-serif'],

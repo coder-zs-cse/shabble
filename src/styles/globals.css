@@ -9,6 +9,26 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #f3f4f6;
+  --foreground: #111827;
+  --surface: #ffffff;
+  --surface-muted: #e5e7eb;
+  --guess-loading-neutral: #6b7280;
+  --guess-loading-warning: #fbbf24;
+  --guess-loading-success: #10b981;
+  --debug-outline: red;
+}
+
+.dark {
+  --background: #1a1a2e;
+  --foreground: #ffffff;
+  --surface: #16213e;
+  --surface-muted: #2d2d44;
+  --text-muted: #cccccc;
+  --border-muted: #444466;
+}
+
 
 @layer base {
   html {
@@ -45,10 +65,10 @@
 
 
 @keyframes guessLoading {
-  0% { background-color: #6B7280; }  /* gray */
-  33% { background-color: #FBBF24; }  /* yellow */
-  66% { background-color: #10B981; }  /* green */
-  100% { background-color: #6B7280; }  /* back to gray */
+  0% { background-color: var(--guess-loading-neutral); }  /* gray */
+  33% { background-color: var(--guess-loading-warning); }  /* yellow */
+  66% { background-color: var(--guess-loading-success); }  /* green */
+  100% { background-color: var(--guess-loading-neutral); }  /* back to gray */
 }
 
 .animate-guessLoading {
@@ -63,40 +83,40 @@
 }
 
 .debug {
-  outline: 1px solid red;
+  outline: 1px solid var(--debug-outline);
 }
 
 /* Dark Mode */
 .dark body {
-  background-color: #1a1a2e;
-  color: #ffffff;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .dark nav {
-  background-color: #16213e;
+  background-color: var(--surface);
 }
 
 .dark .bg-gray-200 {
-  background-color: #2d2d44 !important;
+  background-color: var(--surface-muted) !important;
 }
 
 .dark .bg-white {
-  background-color: #16213e !important;
+  background-color: var(--surface) !important;
 }
 
 .dark .text-gray-800 {
-  color: #ffffff !important;
+  color: var(--foreground) !important;
 }
 
 .dark .text-gray-600 {
-  color: #cccccc !important;
+  color: var(--text-muted) !important;
 }
 
 .dark .border-gray-300 {
-  border-color: #444466 !important;
+  border-color: var(--border-muted) !important;
 }
 
 .dark input {
-  background-color: #2d2d44;
-  color: #ffffff;
+  background-color: var(--surface-muted);
+  color: var(--foreground);
 }
