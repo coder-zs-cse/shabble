@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ToastContainer } from 'react-toastify';
+import { AuthSessionProvider } from "@/components/providers/session-provider";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -18,8 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ToastContainer />
-        {children}
+        <AuthSessionProvider>
+          <ToastContainer />
+          {children}
+        </AuthSessionProvider>
       </body>
       {/* <script defer src="https://usa.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="188903092"></script> */}
       {/* <script defer src="https://www.kenyt.ai/botapp/ChatbotUI/dist/js/bot-loader.js" type="text/javascript" data-bot="111651938"></script> */}

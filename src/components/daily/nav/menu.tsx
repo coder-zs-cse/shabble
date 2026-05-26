@@ -1,10 +1,13 @@
 'use client'
 import { Divider, Title } from '@/components'
 import { useGameSettings } from '@/contexts'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaHeart, FaQuestion } from 'react-icons/fa'
 import { IoClose } from 'react-icons/io5'
 import { MdLeaderboard } from 'react-icons/md'
+import { MdLogin, MdLogout } from 'react-icons/md'
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface MenuProps {
     isOpen: boolean
@@ -22,6 +25,13 @@ const Menu: React.FC<MenuProps> = ({
     onShowHelp,
 }) => {
     const { settings } = useGameSettings();
+    const { data: session } = useSession();
+    const router = useRouter();
+    const [playerId, setPlayerId] = useState<string | null>(null);
+
+    useEffect(() => {
+        setPlayerId(localStorage.getItem("userId"));
+    }, []);
 
     const difficultyOptions = [
         { size: 5, label: 'EASY', level: '5 x 5', levelClassName: 'text-green-600' },
@@ -92,6 +102,37 @@ const Menu: React.FC<MenuProps> = ({
                                         </div>
                                     </div>
                                 ))}
+
+                                <Divider isVertical={false} className='my-2' />
+
+                                {session?.user ? (
+                                    <>
+                                        <div className='px-4 py-1 text-sm text-gray-500 uppercase tracking-wide truncate'>
+                                            {session.user.name || session.user.email}
+                                        </div>
+                                        <div
+                                            className='flex gap-1 items-center hover:bg-white rounded cursor-pointer'
+                                            onClick={() => signOut({ callbackUrl: '/daily' })}
+                                        >
+                                            <div className='pl-3'><MdLogout size={30} /></div>
+                                            <div className="w-full text-left p-3 text-[20px] uppercase font-bold">Log Out</div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div
+                                        className='flex gap-1 items-center hover:bg-white rounded cursor-pointer'
+                                        onClick={() => { onClose(); router.push('/login'); }}
+                                    >
+                                        <div className='pl-3'><MdLogin size={30} /></div>
+                                        <div className="w-full text-left p-3 text-[20px] uppercase font-bold">Log In</div>
+                                    </div>
+                                )}
+
+                                {playerId && (
+                                    <div className='px-4 py-3 text-xs text-gray-400 uppercase tracking-wider text-center'>
+                                        PLAYER ID: {playerId}
+                                    </div>
+                                )}
                             </div>
                 </div>
                 </div>

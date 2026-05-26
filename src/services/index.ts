@@ -20,17 +20,21 @@ export {
 
 import {
     createUser,
+    upsertGoogleUser,
     incrementPlayedCount,
     updateStreak,
     updateStars,
-    getStatistics
+    getStatistics,
+    getLeaderboard
 } from "./user/user";
 
 export {
     createUser,
+    upsertGoogleUser,
     incrementPlayedCount,
     updateStreak,
     updateStars,
-    getStatistics
+    getStatistics,
+    getLeaderboard
 };
 

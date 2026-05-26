@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  url      = env("DATABASE_URL")
 }
 
 model DailyPuzzle {
@@ -25,14 +25,29 @@ model DailyPuzzle {
 }
 
 model User {
-  id               String         @id
-  played           Int            @default(0)
-  totalStars       Int            @default(0)
-  currentStreak    Int            @default(0)
-  bestStreak       Int            @default(0)
-  starDistribution Int[]          @default([0, 0, 0, 0, 0, 0])
-  createdAt        DateTime       @default(now())
-  progress         UserProgress[]
+  id          String        @id
+  name        String?
+  email       String?
+  provider    String?
+  providerId  String?
+  countryCode String?
+  createdAt   DateTime      @default(now())
+  stats       UserStats?
+  progress    UserProgress[]
+
+  @@unique([provider, providerId])
+}
+
+model UserStats {
+  id               Int      @id @default(autoincrement())
+  userId           String   @unique
+  played           Int      @default(0)
+  totalStars       Int      @default(0)
+  currentStreak    Int      @default(0)
+  bestStreak       Int      @default(0)
+  starDistribution Int[]    @default([0, 0, 0, 0, 0, 0])
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id])
 }
 
 enum GameStatus {
@@ -50,6 +65,7 @@ model UserProgress {
   status            GameStatus  @default(playing)
   stars             Int?
   createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
   user              User        @relation(fields: [userId], references: [id])
   puzzle            DailyPuzzle @relation(fields: [puzzleId], references: [id])
 
