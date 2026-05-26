@@ -17,7 +17,7 @@ const StarBar = ({ stars, value, maxValue }: { stars: number; value: number; max
   const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0
   
   return (
-    <div className="flex items-center gap-2 mb-2">
+    <div className="flex items-center gap-2 mb-2">className="flex flex-col bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto"
       <div className="w-8 flex items-center justify-center">
         {stars === 0 ? '✕' : `${stars}`}
         {stars > 0 && <span className="text-yellow-500 ml-1">★</span>}
@@ -54,7 +54,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
   const playerId = localStorage.getItem("userId")
   return (
     <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000]" 
+      className="fixed inset-0 bg-black/50 flex items-start justify-center pt-6 md:pt-10 z-[10000]"
       onClick={() => setShowStatistics(false)}
     >
       <div 
