@@ -4,9 +4,8 @@ import { Metadata } from 'next';
 import {
   DesktopAdLeft,
   DesktopAdRight,
-  MobileAdBar,
 } from '@/components/adsense/adsense-placements';
-import { ADSENSE_CLIENT } from '@/constants/adsense/adsense';
+import { ADSENSE_CLIENT } from '@/constants';
 
 export const metadata: Metadata = {
   title: 'Shabble',
@@ -33,7 +32,7 @@ function layout({ children }: { children: React.ReactNode }) {
 
         <DesktopAdRight />
 
-        <MobileAdBar />
+        {/* <MobileAdBar /> */}
       </div>
     </>
   );

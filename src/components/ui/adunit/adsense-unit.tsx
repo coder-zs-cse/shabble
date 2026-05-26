@@ -18,7 +18,7 @@ type AdSenseUnitProps = {
   className?: string;
 };
 
-export function AdSenseUnit({
+export default function AdSenseUnit({
   slot,
   format = 'auto',
   fullWidthResponsive = true,

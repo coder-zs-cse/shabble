@@ -1,12 +1,12 @@
 'use client';
 
-import { AdSenseUnit } from './adsense-unit';
-import { useIsLgScreen } from './use-media-query';
+import { AdSenseUnit } from '@/components';
+import { useIsLgScreen } from '@/hooks';
 import {
   ADSENSE_SLOT_LEFT,
   ADSENSE_SLOT_RIGHT,
   ADSENSE_SLOT_MOBILE,
-} from '@/constants/adsense/adsense';
+} from '@/constants';
 
 export function DesktopAdLeft() {
   const isLg = useIsLgScreen();
@@ -14,7 +14,7 @@ export function DesktopAdLeft() {
 
   return (
     <aside
-      className="flex flex-1 min-w-[120px] items-center justify-center p-4"
+      className="flex flex-1 min-w-[120px] items-center justify-center p-4 "
       aria-label="Advertisement"
     >
       <AdSenseUnit slot={ADSENSE_SLOT_LEFT} className="w-full max-w-[160px]" />
@@ -28,7 +28,7 @@ export function DesktopAdRight() {
 
   return (
     <aside
-      className="flex flex-1 min-w-[120px] items-center justify-center p-4"
+      className="flex flex-1 min-w-[120px] items-center justify-center p-4 "
       aria-label="Advertisement"
     >
       <AdSenseUnit slot={ADSENSE_SLOT_RIGHT} className="w-full max-w-[160px]" />
