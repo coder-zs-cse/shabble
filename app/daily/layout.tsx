@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 function layout({ children }: { children: React.ReactNode }) {
-  const { root, sidebar, main, mobileBar } = dailyLayout({
+  const { root, sidebar, main } = dailyLayout({
     mobileAd: Boolean(ADSENSE_SLOT_MOBILE),
   });
 
