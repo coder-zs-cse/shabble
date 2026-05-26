@@ -22,3 +22,11 @@ export {
     TILE_CORRECT_EMOJI,
     PUZZLE_START_DATE
 };
+
+
+export {
+    ADSENSE_CLIENT,
+    ADSENSE_SLOT_LEFT,
+    ADSENSE_SLOT_RIGHT,
+    ADSENSE_SLOT_MOBILE
+} from "./adsense/adsense";
