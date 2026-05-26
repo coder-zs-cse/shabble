@@ -18,14 +18,8 @@ const hiddenShapes: string[][][] = [
         ["", "", "", "", "", ""],
         ["", "", "", "", "", ""]
     ],
-    [
-        ["", "", "", "", "X", ""],
-        ["", "", "", "X", "X", ""],
-        ["", "", "", "X", "", ""],
-        ["", "", "X", "X", "", ""],
-        ["", "", "", "", "", ""],
-        ["", "", "", "", "", ""]
-    ],
+    
+        
     [
         ["", "", "", "", "", "", ""],
         ["", "", "", "", "", "", ""],
@@ -89,7 +83,7 @@ export const instructions: readonly (string | JSX.Element)[][] = [
             </div>
         </>,
         <>
-            The number of tiles in the hidden shape is equal to the length of the board.
+            The hidden shape contains as many tiles as the grid's side dimension (e.g., a 5x5 board has a 5-tile shape).
         </>
     ],
     [
