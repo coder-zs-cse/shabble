@@ -4,7 +4,6 @@ import { Metadata } from 'next';
 import {
   DesktopAdLeft,
   DesktopAdRight,
-  MobileAdBar,
 } from '@/components/adsense/adsense-placements';
 import { ADSENSE_CLIENT, ADSENSE_SLOT_MOBILE } from '@/constants';
 import { dailyLayout } from './layout.variants';
