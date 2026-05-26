@@ -4,8 +4,10 @@ import { Metadata } from 'next';
 import {
   DesktopAdLeft,
   DesktopAdRight,
+  MobileAdBar,
 } from '@/components/adsense/adsense-placements';
-import { ADSENSE_CLIENT } from '@/constants';
+import { ADSENSE_CLIENT, ADSENSE_SLOT_MOBILE } from '@/constants';
+import { dailyLayout } from './layout.variants';
 
 export const metadata: Metadata = {
   title: 'Shabble',
@@ -14,25 +16,37 @@ export const metadata: Metadata = {
 };
 
 function layout({ children }: { children: React.ReactNode }) {
+  const { root, sidebar, main, mobileBar } = dailyLayout({
+    mobileAd: Boolean(ADSENSE_SLOT_MOBILE),
+  });
+
   return (
     <>
-      <Script
-        async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
+      {ADSENSE_CLIENT ? (
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      ) : null}
 
-      <div className="w-screen min-h-screen bg-gray-200 flex flex-col lg:flex-row">
-        <DesktopAdLeft />
+      <div className={root()}>
+        <aside className={sidebar()} aria-label="Advertisement">
+          <DesktopAdLeft />
+        </aside>
 
-        <main className="relative w-full lg:w-[730px] lg:max-w-[730px] lg:flex-shrink-0 min-h-screen flex flex-col bg-white pb-28 lg:pb-0">
-          {children}
-        </main>
+        <main className={main()}>{children}</main>
 
-        <DesktopAdRight />
+        <aside className={sidebar()} aria-label="Advertisement">
+          <DesktopAdRight />
+        </aside>
 
-        {/* <MobileAdBar /> */}
+        {/* {ADSENSE_SLOT_MOBILE ? (
+          <div className={mobileBar()} aria-label="Advertisement">
+            <MobileAdBar />
+          </div>
+        ) : null} */}
       </div>
     </>
   );

@@ -26,8 +26,10 @@ export default function AdSenseUnit({
 }: AdSenseUnitProps) {
   const insRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
+  const enabled = Boolean(slot && ADSENSE_CLIENT);
 
   useEffect(() => {
+    if (!enabled) return;
     const el = insRef.current;
     if (!el) return;
 
@@ -47,7 +49,9 @@ export default function AdSenseUnit({
     observer.observe(el);
 
     return () => observer.disconnect();
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <ins
