@@ -1,4 +1,3 @@
-
 'use client'
 import React from 'react'
 import { Loader } from '@/components'
@@ -14,6 +13,7 @@ import { toast } from 'react-toastify'
 
 function Daily() {
     const { settings, isLoading, error } = useGameSettings();
+
     const {
         showHelp,
         showStatistics,
@@ -25,9 +25,11 @@ function Daily() {
     } = useGameLogic();
 
     // console.log("settings in daily", settings)
-    if(error){
+
+    if (error) {
         toast.error("Database is inactive, please ask developer to activate it");
     }
+
     return (
         <div className='relative flex flex-col items-center w-full h-full overflow-hidden'>
             <GameHeader
@@ -37,40 +39,46 @@ function Daily() {
                 setShowStatistics={setShowStatistics}
                 statistics={settings.statistics}
             />
-            {isLoading ?
+
+            {isLoading ? (
                 <div className='flex items-center justify-center w-full h-full'>
                     <Loader />
                 </div>
-                : (
-                    <div className='flex flex-col items-center w-full h-full overflow-auto hide-scrollbar'>
-                        <div className='flex-1 w-full h-full' />
-                        <div className='flex flex-col items-center w-full space-y-4 z-10'>
-                            <GameStatus
-                                date={settings.date}
-                                board={settings.board}
+            ) : (
+                <div className='flex flex-col items-center w-full h-full overflow-auto hide-scrollbar'>
+                    <div className='flex-1 w-full h-full' />
+
+                    <div className='flex flex-col items-center w-full space-y-4 z-10'>
+                        <GameStatus
+                            date={settings.date}
+
+                            guess={settings.guess}
+                            board={settings.board}
+                            gameStatus={settings.gameStatus}
+                            incorrectGuess={incorrectGuess}
+                            onTileClick={handleTileClick}
+                        />
+
+                        <GameControls
+                            gameStatus={settings.gameStatus}
+                            guessTileCount={settings.guessTileCount}
+                            boardSize={settings.boardSize}
+                            onSubmit={handleSubmitButton}
+                        />
+
+                        {(settings.gameStatus === "won" || settings.gameStatus === "lost") && (
+                            <GameResult
+                                gameStatus={settings.gameStatus}
+                                stars={settings.stars}
                                 guess={settings.guess}
-                                gameStatus={settings.gameStatus}
-                                incorrectGuess={incorrectGuess}
-                                onTileClick={handleTileClick}
-                            />
-
-                            <GameControls
-                                gameStatus={settings.gameStatus}
-                                guessTileCount={settings.guessTileCount}
                                 boardSize={settings.boardSize}
-                                onSubmit={handleSubmitButton}
                             />
-
-                            {(settings.gameStatus === "won" || settings.gameStatus === "lost") && (
-                                <GameResult
-                                    gameStatus={settings.gameStatus}
-                                    stars={settings.stars}
-                                />
-                            )}
-                        </div>
-                        <div className='flex-1 w-full h-full' />
+                        )}
                     </div>
-                )}
+
+                    <div className='flex-1 w-full h-full' />
+                </div>
+            )}
         </div>
     )
 }
