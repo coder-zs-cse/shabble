@@ -1,12 +1,48 @@
+import { FiShare2 } from "react-icons/fi"
 import { RiStarSFill } from "react-icons/ri"
 import { GameState } from '@/types'
 
 interface GameResultProps {
     gameStatus: GameState
     stars: number
+    guess: string[][]
+    boardSize: number
 }
 
-export function GameResult({ gameStatus, stars }: GameResultProps) {
+export function GameResult({
+    gameStatus,
+    stars,
+    guess,
+    boardSize
+}: GameResultProps) {
+        const handleShareResults = async () => {
+        const emoji = gameStatus === "won" ? "🟩" : "🟨";
+        
+        const grid = guess
+    .map((row) =>
+        row
+            .map((cell) => (cell !== "" ? emoji : "⬜"))
+            .join("")
+    )
+    .join("\n");
+
+        const shareText = `
+SHABBLE — ${boardSize}×${boardSize}
+${grid}
+
+${gameStatus === "won" ? `Solved with ${stars} ⭐` : "Game Over"}
+
+🔥 Streak: 0
+⭐ Stars collected: ${stars}
+`;
+
+        try {
+            await navigator.clipboard.writeText(shareText);
+            alert("Results copied to clipboard!");
+        } catch (error) {
+            console.error("Failed to copy results:", error);
+        }
+    };
     return (
         <>
             <div className='flex items-center justify-center space-x-2 h-[30px] md:h-[50px]'>
@@ -30,6 +66,15 @@ export function GameResult({ gameStatus, stars }: GameResultProps) {
                 ) : (
                     <LoseMessage />
                 )}
+            </div>
+                        <div className='flex items-center justify-center mt-4'>
+                <button
+                    onClick={handleShareResults}
+                    className='flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 transition'
+                >
+                    <FiShare2 />
+                    Share Results
+                </button>
             </div>
         </>
     )
