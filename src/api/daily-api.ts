@@ -11,9 +11,8 @@ export const getGameStatus = async (date: string, boardSize: number): Promise<Ga
     } catch (error) {
         if (error instanceof AxiosError) {
             const apiError = (error.response?.data as ApiResponse<unknown>)?.error;
-            toast.error(apiError?.message ?? "Something went wrong");
+            throw new Error(apiError?.message ?? "Something went wrong");
         }
-        console.error('Error fetching game settings:', error);
         throw error;
     }
 }
