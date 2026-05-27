@@ -4,7 +4,7 @@ import axios, {
     AxiosError,
     InternalAxiosRequestConfig,
   } from "axios";
-  // import { getUserId } from "@/api/user";
+  import { getUserId } from "@/api/user";
   import { envConfig } from "@/lib/config/envConfig";
 
   const createAxiosInstance = (
@@ -24,12 +24,24 @@ import axios, {
       instance.interceptors.request.use(
         async (config: InternalAxiosRequestConfig) => {
           try {
-            const userId = localStorage.getItem("userId");
+            let userId = localStorage.getItem("userId");
+            let authToken = localStorage.getItem("authToken");
+            
+            // Auto-provision if missing
+            if (!userId || !authToken) {
+                await getUserId();
+                userId = localStorage.getItem("userId");
+                authToken = localStorage.getItem("authToken");
+            }
+
             if (userId) {
                 config.headers.set("userId", userId);
             }
+            if (authToken) {
+                config.headers.set("Authorization", `Bearer ${authToken}`);
+            }
           } catch (error) {
-            console.error("Failed to get userId:", error);
+            console.error("Failed to get auth credentials:", error);
           }
           return config;
         },
@@ -38,14 +50,28 @@ import axios, {
 
       instance.interceptors.response.use(
         (response) => {
+            // Note: with JWT, we no longer need x-user-id header logic, but keeping for safety if any other logic relies on it
             const newUserId = response.headers['x-user-id'];
-            // console.log("newUserId in response", newUserId)
             if (newUserId) {
                 localStorage.setItem("userId", newUserId);
             }
             return response;
         },
-        (error: AxiosError) => Promise.reject(error)
+        async (error: AxiosError) => {
+            if (error.response?.status === 401) {
+                // Token is missing or invalid. Clear old data and get new credentials.
+                localStorage.removeItem("userId");
+                localStorage.removeItem("authToken");
+                try {
+                    await getUserId();
+                    // Optionally reload the page to refresh the game state with the new user
+                    window.location.reload();
+                } catch (e) {
+                    console.error("Failed to recover from 401:", e);
+                }
+            }
+            return Promise.reject(error);
+        }
     );
     }
   
@@ -55,4 +81,5 @@ import axios, {
   // Instances for BASE_URL
   export const axiosSecure = createAxiosInstance(envConfig.BASE_URL!, true);
   export const axiosOpen = createAxiosInstance(envConfig.BASE_URL!);
+
   

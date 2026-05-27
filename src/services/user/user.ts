@@ -1,11 +1,11 @@
 import { MAX_STARS } from "@/constants";
 import { prisma } from "@/lib";
 import { StatisticsProps } from "@/types";
-import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export const createUser = async (): Promise<string> => {
     try {
-        const userId = crypto.randomBytes(4).toString('hex').toUpperCase();
+        const userId = uuidv4();
         await prisma.user.create({
             data: { id: userId, createdAt: new Date() }
         });
