@@ -9,6 +9,7 @@ interface GameSettingsContextType {
     settings: GameSettings;
     isLoading: boolean;
     error: Error | null;
+    userNotFound: boolean;
     updateSettings: (updates: Partial<GameSettings>) => void;
     takeHint: (x: number, y: number) => Promise<boolean>;
     makeGuess: () => Promise<{ success: boolean; won: boolean; }>;
@@ -40,6 +41,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
     const [loadingCoordinates, setLoadingCoordinates] = useState<{ x: number; y: number } | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
+    const [userNotFound, setUserNotFound] = useState(false);
 
     console.log("settings", settings);
     useEffect(() => {
@@ -67,6 +69,10 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
                 }
                 
             } catch (err) {
+                if (err instanceof Error && err.message === "USER_NOT_FOUND") {
+                    setUserNotFound(true);
+                    return;
+                }
                 setError(err instanceof Error ? err : new Error('Failed to fetch game settings'));
             } finally {
                 setIsLoading(false);
@@ -93,7 +99,9 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             return true;
         } catch (error) {
             console.error('Error fetching hint:', error);
-            // updateSettings({ hints: settings.hints - 1 });
+            if (error instanceof Error && error.message === "USER_NOT_FOUND") {
+                setUserNotFound(true);
+            }
             return false;
         } finally {
             setLoadingCoordinates(undefined);
@@ -130,6 +138,9 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             return { success: true, won: false };
         } catch (error) {
             console.error('Error checking guess:', error);
+            if (error instanceof Error && error.message === "USER_NOT_FOUND") {
+                setUserNotFound(true);
+            }
             return { success: false, won: false };
         }
     };
@@ -144,6 +155,7 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
         settings,
         isLoading,
         error,
+        userNotFound,
         updateSettings,
         takeHint,
         makeGuess,

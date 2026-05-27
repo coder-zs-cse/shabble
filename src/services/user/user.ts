@@ -35,6 +35,11 @@ export const getStatistics = async (userId: string): Promise<StatisticsProps> =>
         throw error;
     }
 }
+export const validateUser = async (userId: string): Promise<boolean> => {
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+    return !!user;
+}
+
 export const incrementPlayedCount = async (userId: string): Promise<void> => {
     try {
         await prisma.user.update({

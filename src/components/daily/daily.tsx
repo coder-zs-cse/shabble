@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Loader } from '@/components'
 import { useGameSettings } from '@/contexts'
 import {
@@ -10,9 +10,10 @@ import {
 } from './game'
 import { useGameLogic } from '@/hooks'
 import { toast } from 'react-toastify'
+import UserResetDialog from '@/components/ui/dialog/user-reset-dialog'
 
 function Daily() {
-    const { settings, isLoading, error } = useGameSettings();
+    const { settings, isLoading, error, userNotFound } = useGameSettings();
     const {
         showHelp,
         showStatistics,
@@ -23,12 +24,16 @@ function Daily() {
         setShowStatistics
     } = useGameLogic();
 
+    useEffect(() => {
+        if (error) {
+            toast.error("Database is inactive, please ask developer to activate it");
+        }
+    }, [error]);
+
     console.log("settings in daily", settings)
-    if(error){
-        toast.error("Database is inactive, please ask developer to activate it");
-    }
     return (
         <div className='relative flex flex-col items-center w-full h-full overflow-hidden'>
+            {userNotFound && <UserResetDialog />}
             <GameHeader
                 showHelp={showHelp}
                 showStatistics={showStatistics}

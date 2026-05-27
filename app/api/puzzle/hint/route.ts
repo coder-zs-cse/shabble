@@ -1,4 +1,4 @@
-import { getAdjacentCount, getCurrentBoard, updateUserProgress } from "@/services";
+import { getAdjacentCount, getCurrentBoard, updateUserProgress, validateUser } from "@/services";
 import { NextResponse } from "next/server";
 import { validateHintParams } from "@/lib";
 import { getHintResponse } from "@/types/api/daily-api";
@@ -12,6 +12,12 @@ export async function GET(request: Request): Promise<NextResponse> {
         if (!isValid || !data) {
             return NextResponse.json({ errors }, { status: 400 });
         }
+
+        const userExists = await validateUser(data.userId!);
+        if (!userExists) {
+            return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
+        }
+
         const { puzzleId, x, y } = data;
 
         const currentBoard = await getCurrentBoard({ puzzleId });

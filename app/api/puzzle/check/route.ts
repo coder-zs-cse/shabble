@@ -1,5 +1,5 @@
 import { validateGuessCheckParams } from "@/lib";
-import { checkGuess, getCurrentBoard, getStatistics, updateUserProgress } from "@/services";
+import { checkGuess, getCurrentBoard, getStatistics, updateUserProgress, validateUser } from "@/services";
 import { checkGuessResponse } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,6 +10,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const { isValid, errors, data } = validateGuessCheckParams(await request.json(), userId);
         if (!isValid || !data) {
             return NextResponse.json({ errors }, { status: 400 });
+        }
+
+        const userExists = await validateUser(data.userId!);
+        if (!userExists) {
+            return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
         }
 
         const { puzzleId, guess } = data;

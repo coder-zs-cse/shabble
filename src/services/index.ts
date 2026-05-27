@@ -23,7 +23,8 @@ import {
     incrementPlayedCount,
     updateStreak,
     updateStars,
-    getStatistics
+    getStatistics,
+    validateUser
 } from "./user/user";
 
 export {
@@ -31,6 +32,7 @@ export {
     incrementPlayedCount,
     updateStreak,
     updateStars,
-    getStatistics
+    getStatistics,
+    validateUser
 };
 

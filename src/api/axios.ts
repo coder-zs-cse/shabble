@@ -45,7 +45,12 @@ import axios, {
             }
             return response;
         },
-        (error: AxiosError) => Promise.reject(error)
+        (error: AxiosError) => {
+            if (error.response?.status === 404 && (error.response?.data as { error?: string })?.error === "USER_NOT_FOUND") {
+                return Promise.reject(new Error("USER_NOT_FOUND"));
+            }
+            return Promise.reject(error);
+        }
     );
     }
   

@@ -1,5 +1,5 @@
 import { validateStatusParams } from "@/lib";
-import { getGameStatus } from "@/services";
+import { getGameStatus, validateUser } from "@/services";
 import { GameStatusResponse } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,6 +11,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         const { isValid, errors, data } = validateStatusParams(searchParams, userId);
         if (!isValid || !data) {
             return NextResponse.json({ errors }, { status: 400 });
+        }
+
+        const userExists = await validateUser(data.userId!);
+        if (!userExists) {
+            return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
         }
 
         const { boardSize, date } = data;
