@@ -6,6 +6,8 @@ import axios, {
   } from "axios";
   // import { getUserId } from "@/api/user";
   import { envConfig } from "@/lib/config/envConfig";
+  import { ERROR_CODES } from "@/constants";
+  import { ApiResponse } from "@/types";
 
   const createAxiosInstance = (
     baseURL: string,
@@ -45,7 +47,13 @@ import axios, {
             }
             return response;
         },
-        (error: AxiosError) => Promise.reject(error)
+        (error: AxiosError) => {
+            const apiError = (error.response?.data as ApiResponse<unknown>)?.error;
+            if (error.response?.status === 404 && apiError?.code === ERROR_CODES.USER_NOT_FOUND) {
+                return Promise.reject(new Error("USER_NOT_FOUND"));
+            }
+            return Promise.reject(error);
+        }
     );
     }
   

@@ -1,7 +1,9 @@
 export type {
     GameStatusResponse,
     getHintResponse,
-    checkGuessResponse
+    checkGuessResponse,
+    ApiError,
+    ApiResponse,
 } from "./api/daily-api";
 
 export type {
