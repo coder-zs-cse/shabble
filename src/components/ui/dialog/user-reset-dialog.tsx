@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import Title from '../title/title'
 import Button from '../button/button'
 
 function UserResetDialog() {
@@ -9,16 +10,24 @@ function UserResetDialog() {
     };
 
     return (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
-            <div className='bg-white rounded-xl p-6 mx-4 max-w-sm w-full flex flex-col gap-4 shadow-xl'>
-                <div className='flex flex-col gap-1'>
-                    <h2 className='text-lg font-semibold text-black'>Account not found</h2>
-                    <p className='text-sm text-gray-500'>
-                        Your saved account could not be found. Reset to start fresh with a new account.
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000]">
+            <div className="flex flex-col bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-sm gap-4">
+
+                <div className="flex items-center justify-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-yellow-400 shadow-[inset_0_-3px_0_rgba(0,0,0,0.1)]" />
+                    <div className="w-6 h-6 rounded-md bg-yellow-400 shadow-[inset_0_-3px_0_rgba(0,0,0,0.1)]" />
+                    <div className="w-6 h-6 rounded-md bg-yellow-400 shadow-[inset_0_-3px_0_rgba(0,0,0,0.1)]" />
+                </div>
+
+                <div className="flex flex-col items-center gap-1 text-center">
+                    <Title title="ACCOUNT NOT FOUND" className="text-red-700 !text-xl md:!text-2xl" />
+                    <p className="text-sm text-gray-500">
+                        Your saved account no longer exists. Reset to start fresh with a new account.
                     </p>
                 </div>
+
                 <Button onClick={handleReset}>
-                    Reset
+                    RESET
                 </Button>
             </div>
         </div>
