@@ -6,12 +6,15 @@ import {
   DesktopAdRight,
 } from '@/components/adsense/adsense-placements';
 import { ADSENSE_CLIENT, ADSENSE_SLOT_MOBILE } from '@/constants';
+import { canonicalUrl, SITE_DESCRIPTION, SITE_TITLE } from '@/lib/seo';
 import { dailyLayout } from './layout.variants';
 
 export const metadata: Metadata = {
-  title: 'Shabble',
-  description:
-    'Shabble is a shape guessing puzzle game. Play daily to get a new shape to guess. Solve with as less attempts as possible.',
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: canonicalUrl('/daily'),
+  },
 };
 
 function layout({ children }: { children: React.ReactNode }) {
