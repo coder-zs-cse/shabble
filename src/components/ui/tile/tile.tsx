@@ -61,6 +61,8 @@ export default function Tile({ className, tileContent, guessContent, onClick, ga
     }
   };
 
+  const tileStatus = getTileStatus();
+
   return (
     <div
      

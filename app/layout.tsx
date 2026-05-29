@@ -3,6 +3,8 @@ import { ToastContainer } from 'react-toastify';
 import { ThemeProvider, ThemeScript } from '@/contexts';
 import "@/styles/globals.css";
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { ADSENSE_CLIENT } from "@/constants";
 
 export const metadata: Metadata = {
   title: "Shabble",
@@ -20,12 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="google-adsense-account" content={ADSENSE_CLIENT}></meta>
         <ThemeScript />
       </head>
       <body>
         <ThemeProvider>
           <ToastContainer />
           <Analytics />
+          <SpeedInsights />
           {children}
         </ThemeProvider>
       </body>
