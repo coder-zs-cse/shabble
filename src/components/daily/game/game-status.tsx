@@ -1,3 +1,4 @@
+'use client'
 import { Text, Board } from '@/components'
 import { getPuzzleNumber } from '@/lib'
 import { GameStatusMessage } from './game-status-message'
@@ -20,6 +21,7 @@ export function GameStatus({
     incorrectGuess, 
     onTileClick 
 }: GameStatusProps) {
+
     return (
         <>
             <Text className='!text-base md:!text-2xl text-gray-400 dark:text-white'>

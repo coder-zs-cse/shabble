@@ -1,24 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght=0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght=0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght=0,200..1000;1,200..1000&display=swap');
 @import 'react-toastify/dist/ReactToastify.css';
 
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 @layer base {
   html {
     font-family: "Nunito", sans-serif;
   }
 }
-
-
-
-
 
 @keyframes shake {
   0% { transform: translateX(0); }
@@ -33,7 +25,6 @@
   animation-iteration-count: 2;
 }
 
-
 @keyframes slide-up {
   0% { transform: translateY(50%); }
   100% { transform: translateY(0); }
@@ -43,19 +34,16 @@
   animation: slide-up 0.3s ease-out;
 }
 
-
 @keyframes guessLoading {
-  0% { background-color: #6B7280; }  /* gray */
-  33% { background-color: #FBBF24; }  /* yellow */
-  66% { background-color: #10B981; }  /* green */
-  100% { background-color: #6B7280; }  /* back to gray */
+  0% { background-color: #6B7280; }
+  33% { background-color: #FBBF24; }
+  66% { background-color: #10B981; }
+  100% { background-color: #6B7280; }
 }
 
 .animate-guessLoading {
   animation: guessLoading 1s infinite;
 }
-
-
 
 .hide-scrollbar {
   -ms-overflow-style: none;
@@ -66,7 +54,6 @@
   outline: 1px solid red;
 }
 
-/* Dark Mode */
 .dark body {
   background-color: #1a1a2e;
   color: #ffffff;
@@ -99,4 +86,26 @@
 .dark input {
   background-color: #2d2d44;
   color: #ffffff;
+}
+
+/* Yellow Radar Sweeping Keyframes */
+@keyframes radar-pulse-yellow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8);
+    background-color: rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    background-color: rgba(245, 158, 11, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(245, 158, 11, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    background-color: rgba(245, 158, 11, 0.2);
+  }
+}
+
+.animate-radar {
+  animation: radar-pulse-yellow 1.4s ease-in-out infinite !important;
 }
