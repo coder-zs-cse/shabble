@@ -4,6 +4,7 @@ import { GameSettings, GameStatusResponse } from '@/types';
 import { checkGuess, getGameStatus, getHint } from '@/api/daily-api';
 import { DEFAULT_BOARD_SIZE, MAX_HINTS, MAX_STARS } from '@/constants';
 import { coordinatesToBoard } from '@/lib';
+import { getArchiveGameStatus } from '@/services/archive/archive';
 
 interface GameSettingsContextType {
     settings: GameSettings;
@@ -18,7 +19,7 @@ interface GameSettingsContextType {
 
 const GameSettingsContext = createContext<GameSettingsContextType | undefined>(undefined);
 
-export function GameSettingsProvider({ children }: { children: React.ReactNode }) {
+export function GameSettingsProvider({ children, puzzleId }: { children: React.ReactNode, puzzleId?: number }) {
     const [settings, setSettings] = useState<GameSettings>({
         puzzleId: 0,
         date: new Date().toISOString().split('T')[0],
@@ -47,7 +48,14 @@ export function GameSettingsProvider({ children }: { children: React.ReactNode }
             setIsLoading(true);
             setError(null);
             try {
-                const data: GameStatusResponse = await getGameStatus(settings.date, settings.boardSize);
+                // const data: GameStatusResponse = await getGameStatus(settings.date, settings.boardSize);
+
+                let data: GameStatusResponse;
+                if(puzzleId){
+                    data= await getArchiveGameStatus(puzzleId);
+                }else{
+                    data= await getGameStatus(settings.date, settings.boardSize);
+                }
                 setSettings(prev => ({
                     ...prev,
                     puzzleId: data.puzzleId,
