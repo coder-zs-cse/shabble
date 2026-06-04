@@ -24,7 +24,7 @@ export function GameResult({ gameStatus, stars }: GameResultProps) {
                 )}
             </div>
             
-            <div className='flex items-center justify-center w-full h-[90px] bg-gray-100'>
+            <div className='flex items-center justify-center w-full h-[90px] glass'>
                 {gameStatus === "won" ? (
                     <WinMessage />
                 ) : (

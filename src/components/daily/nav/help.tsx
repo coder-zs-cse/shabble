@@ -15,7 +15,7 @@ function Help({ setShowHelp }: HelpProps) {
       <div className='bg-black/50 flex-1 h-full' onClick={() => setShowHelp(false)}></div>
       <div className='max-w-[730px] w-full h-full animate-slide-up border-t border-gray-light'>
         <div className='h-[72px] opacity-0 debug' onClick={() => setShowHelp(false)} />
-        <div className='h-[calc(100%-72px)] bg-white'>
+        <div className='h-[calc(100%-72px)] glass'>
 
           <nav className='relative flex items-center w-full h-[72px]'>
             <Title
