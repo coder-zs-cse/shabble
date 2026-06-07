@@ -100,3 +100,128 @@
   background-color: #2d2d44;
   color: #ffffff;
 }
+
+/* Responsive Improvements */
+
+/* Prevent horizontal scrolling */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Make media responsive */
+img,
+video,
+iframe,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Better box sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Tablet Layout */
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+
+  nav {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Mobile Layout */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  nav {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+
+  nav {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake,
+  .animate-slide-up,
+  .animate-guessLoading {
+    animation: none !important;
+  }
+
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
