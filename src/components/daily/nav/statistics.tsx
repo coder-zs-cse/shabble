@@ -58,7 +58,7 @@ function Statistics({ statistics, setShowStatistics }: StatisticsProps) {
       onClick={() => setShowStatistics(false)}
     >
       <div 
-        className="flex flex-col bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-2xl"
+        className="flex flex-col glass p-6 rounded-lg w-[90%] max-w-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
