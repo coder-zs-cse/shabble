@@ -17,7 +17,7 @@ cd Shabble
 
 ### Install Dependencies:
 ```
-pnpm install
+npm install
 ```
 
 ### Run Database Migrations:
