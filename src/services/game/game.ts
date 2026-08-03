@@ -125,3 +125,4 @@ export const getGameStatus = async (date: string, boardSize: number, userId: str
     }
 
 }
+.catch(err => console.error("Promise.all failed:", err));
