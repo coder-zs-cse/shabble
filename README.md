@@ -54,3 +54,29 @@ Access the Game: Open your web browser and navigate to ```http://localhost:3000`
 ### Hard Level
 
 ![Screenshot from 2024-11-12 21-30-55](https://github.com/user-attachments/assets/0c880d10-e13f-4777-8285-7b815b9e9006)
+
+## Troubleshooting
+
+### Installation fails
+- Ensure you are using the supported Node.js version.
+- Run `npm install` or `npm ci`.
+- Delete `node_modules` and reinstall dependencies if necessary.
+
+### Environment variables not loading
+- Verify that a `.env` file exists.
+- Ensure all required variables are defined.
+- Restart the development server after making changes.
+
+## FAQ
+
+### How do I start the project?
+Run:
+
+```bash
+npm install
+npm run dev
+```
+
+### How do I report a bug?
+Please open a GitHub issue with reproduction steps and relevant logs.
+
